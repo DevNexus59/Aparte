@@ -1,0 +1,17 @@
+node_modules/
+.env
+*.log
+
+# API
+apps/api/dist/
+apps/api/uploads/
+
+# Expo
+apps/app/.expo/
+apps/app/dist/
+apps/app/web-build/
+
+# OS / Editor
+.DS_Store
+.vscode/
+.idea/

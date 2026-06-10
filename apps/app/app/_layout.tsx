@@ -1,0 +1,89 @@
+import { useEffect } from 'react';
+import { View } from 'react-native';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useFonts } from 'expo-font';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {
+  Newsreader_300Light,
+  Newsreader_400Regular,
+  Newsreader_400Regular_Italic,
+  Newsreader_500Medium,
+} from '@expo-google-fonts/newsreader';
+import {
+  HankenGrotesk_400Regular,
+  HankenGrotesk_500Medium,
+  HankenGrotesk_600SemiBold,
+  HankenGrotesk_700Bold,
+} from '@expo-google-fonts/hanken-grotesk';
+import { GeistMono_400Regular } from '@expo-google-fonts/geist-mono';
+
+import { useAuth } from '@/stores/auth';
+import '../global.css';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error: unknown) => {
+        // Pas de retry sur 4xx (M6). Réseau : 2 retries.
+        const status = (error as { status?: number })?.status;
+        if (status && status >= 400 && status < 500) return false;
+        return failureCount < 2;
+      },
+      staleTime: 30_000,
+    },
+  },
+});
+
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const segments = useSegments();
+  const { accessToken, hydrated, hydrate } = useAuth();
+
+  useEffect(() => { if (!hydrated) hydrate(); }, [hydrated, hydrate]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const inAuth = segments[0] === '(auth)';
+    if (!accessToken && !inAuth) {
+      router.replace('/(auth)/login');
+    } else if (accessToken && inAuth) {
+      router.replace('/(app)');
+    }
+  }, [hydrated, accessToken, segments, router]);
+
+  if (!hydrated) return <View className="flex-1 bg-bg" />;
+  return <>{children}</>;
+}
+
+export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Newsreader_300Light,
+    Newsreader_400Regular,
+    Newsreader_400Regular_Italic,
+    Newsreader_500Medium,
+    HankenGrotesk_400Regular,
+    HankenGrotesk_500Medium,
+    HankenGrotesk_600SemiBold,
+    HankenGrotesk_700Bold,
+    GeistMono_400Regular,
+  });
+
+  if (!fontsLoaded) return <View className="flex-1 bg-bg" />;
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <AuthGate>
+          <StatusBar style="light" />
+          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#0E1217' } }}>
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="onboarding" />
+            <Stack.Screen name="(app)" />
+          </Stack>
+        </AuthGate>
+      </SafeAreaProvider>
+    </QueryClientProvider>
+  );
+}

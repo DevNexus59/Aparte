@@ -1,0 +1,16 @@
+{
+  "name": "cercle",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "api:dev":     "pnpm --filter cercle-api dev",
+    "api:test":    "pnpm --filter cercle-api test",
+    "api:build":   "pnpm --filter cercle-api build",
+    "app:start":   "pnpm --filter cercle-app start",
+    "app:ios":     "pnpm --filter cercle-app ios",
+    "app:android": "pnpm --filter cercle-app android",
+    "app:web":     "pnpm --filter cercle-app web",
+    "typecheck":   "pnpm -r --if-present typecheck"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
