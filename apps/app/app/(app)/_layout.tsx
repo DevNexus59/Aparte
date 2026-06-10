@@ -2,19 +2,21 @@ import { View, Pressable } from 'react-native';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/Text';
-import { IconBattement, IconCercle, IconJournal, IconToi } from '@/components/TabIcons';
+import { IconBattement, IconCercle, IconJournal, IconMessages, IconToi } from '@/components/TabIcons';
 import { colors, hexA } from '@/theme/tokens';
 import { usePushRegistration } from '@/hooks/push';
+import { useMessageSocket } from '@/hooks/messages';
 
 // TabBar custom : gradient discret en haut vers bg-deep, icônes SVG du design.
 // On garde Tabs d'Expo Router (préserve les transitions et le state) mais on
 // override l'apparence via la prop `tabBar`.
 
 const TABS = {
-  index:   { label: 'Battement', Icon: IconBattement },
-  circle:  { label: 'Cercle',    Icon: IconCercle },
-  journal: { label: 'Journal',   Icon: IconJournal },
-  profile: { label: 'Toi',       Icon: IconToi },
+  index:    { label: 'Battement', Icon: IconBattement },
+  circle:   { label: 'Cercle',    Icon: IconCercle },
+  journal:  { label: 'Journal',   Icon: IconJournal },
+  messages: { label: 'Messages',  Icon: IconMessages },
+  profile:  { label: 'Toi',       Icon: IconToi },
 } as const;
 
 type TabKey = keyof typeof TABS;
@@ -84,16 +86,18 @@ function CustomTabBar({ state, navigation }: BottomTabBarProps) {
 
 export default function AppLayout() {
   usePushRegistration();
+  useMessageSocket();
 
   return (
     <Tabs
       tabBar={(props) => <CustomTabBar {...(props as unknown as BottomTabBarProps)} />}
       screenOptions={{ headerShown: false }}
     >
-      <Tabs.Screen name="index"   />
-      <Tabs.Screen name="circle"  />
-      <Tabs.Screen name="journal" />
-      <Tabs.Screen name="profile" />
+      <Tabs.Screen name="index"    />
+      <Tabs.Screen name="circle"   />
+      <Tabs.Screen name="journal"  />
+      <Tabs.Screen name="messages" />
+      <Tabs.Screen name="profile"  />
     </Tabs>
   );
 }
