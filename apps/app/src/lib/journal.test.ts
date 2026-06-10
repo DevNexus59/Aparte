@@ -8,7 +8,7 @@ describe('journalUrl', () => {
 
   it('avec cursor, encodé', () => {
     expect(journalUrl(20, '2024-01-01T00:00:00Z')).toBe(
-      '/heartbeat/journal?limit=20&cursor=2024-01-01T00%3A00%3A00Z',
+      '/heartbeat/journal?limit=20&before=2024-01-01T00%3A00%3A00Z',
     );
   });
 });
