@@ -34,4 +34,10 @@ export class NudgeRepository extends BaseRepository<Nudge> {
     );
     if (result.affected === 0) throw new AppError(404, 'Relance introuvable ou déjà traitée');
   }
+
+  // Stats non-anxiogènes : nombre de relances suivies d'effet — un compteur
+  // de gestes accomplis, jamais comparé à un total ou un taux.
+  countActedForUser(userId: string): Promise<number> {
+    return this.repo.count({ where: { userId, status: 'acted' as never } });
+  }
 }
