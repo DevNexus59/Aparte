@@ -34,6 +34,10 @@ export function useSendMessage(otherUserId: string) {
       api<Message>(`/messages/${otherUserId}`, { method: 'POST', body: { content } }),
     onSuccess: (message) => {
       prependMessage(qc, otherUserId, message);
+      // Filet de sécurité : si le fetch initial de la conversation était encore
+      // en vol, son résultat (sans ce message) écraserait le cache — on
+      // invalide pour forcer un refetch qui inclura le message persistant.
+      qc.invalidateQueries({ queryKey: ['messages', otherUserId] });
       qc.invalidateQueries({ queryKey: ['messages', 'list'] });
     },
   });
@@ -45,9 +49,9 @@ function prependMessage(
   message: Message,
 ) {
   qc.setQueryData<InfiniteData<MessagePage>>(['messages', otherUserId], (data) => {
-    if (!data) {
-      return { pages: [{ items: [message], nextCursor: null }], pageParams: [null] };
-    }
+    // Pas encore de données en cache (fetch initial pas terminé) : on laisse
+    // le fetch — suivi de l'invalidation ci-dessus — faire foi.
+    if (!data) return data;
     const [first, ...rest] = data.pages;
     // Évite les doublons (écho du serveur après l'optimistic update local).
     if (first.items.some((m) => m.id === message.id)) return data;
@@ -71,6 +75,7 @@ export function useMessageSocket() {
     const onNewMessage = (message: Message) => {
       const otherUserId = message.senderId === userId ? message.recipientId : message.senderId;
       prependMessage(qc, otherUserId, message);
+      qc.invalidateQueries({ queryKey: ['messages', otherUserId] });
       qc.invalidateQueries({ queryKey: ['messages', 'list'] });
     };
 
