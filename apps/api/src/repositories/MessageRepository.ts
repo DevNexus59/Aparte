@@ -76,4 +76,15 @@ export class MessageRepository extends BaseRepository<Message> {
     await this.repo.delete({ senderId: userId } as never);
     await this.repo.delete({ recipientId: userId } as never);
   }
+
+  // Stats non-anxiogènes : volume d'échanges (envoyés + reçus), un indicateur
+  // de présence du lien — pas un score de réactivité.
+  async countForUser(userId: string): Promise<number> {
+    return this.repo.count({
+      where: [
+        { senderId: userId, deletedAt: IsNull() },
+        { recipientId: userId, deletedAt: IsNull() },
+      ] as never,
+    });
+  }
 }

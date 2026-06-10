@@ -25,6 +25,33 @@ export class JournalEntryRepository extends BaseRepository<JournalEntry> {
     return this.repo.save(entry);
   }
 
+  // Stats non-anxiogènes (§10 spec) : compteurs bruts par type + par lien,
+  // jamais de ratio/score — l'agrégation reste côté SQL pour rester O(1) en mémoire.
+  async statsForUser(userId: string): Promise<{
+    counts: Record<JournalType, number>;
+    perLink: Map<string, number>;
+  }> {
+    const rows = await this.repo
+      .createQueryBuilder('j')
+      .select('j.type', 'type')
+      .addSelect('j.linkId', 'linkId')
+      .addSelect('COUNT(*)', 'count')
+      .where('j.userId = :userId', { userId })
+      .andWhere('j.deletedAt IS NULL')
+      .groupBy('j.type')
+      .addGroupBy('j.linkId')
+      .getRawMany<{ type: JournalType; linkId: string | null; count: string }>();
+
+    const counts: Record<JournalType, number> = { gratitude: 0, memory: 0, reflection: 0 };
+    const perLink = new Map<string, number>();
+    for (const row of rows) {
+      const n = Number(row.count);
+      counts[row.type] += n;
+      if (row.linkId) perLink.set(row.linkId, (perLink.get(row.linkId) ?? 0) + n);
+    }
+    return { counts, perLink };
+  }
+
   // M3 : cursor-based pagination — stable même avec inserts/deletes concurrents.
   async listForUser(userId: string, opts: CursorPageOptions = {}): Promise<CursorPage<JournalEntry>> {
     const limit = normalizeLimit(opts.limit);

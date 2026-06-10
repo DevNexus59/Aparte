@@ -12,6 +12,7 @@ import { ModerationService } from './ModerationService';
 import { PhotoService } from './PhotoService';
 import { PushService } from './PushService';
 import { MessageService } from './MessageService';
+import { StatsService } from './StatsService';
 
 export class Services {
   readonly auth: AuthService;
@@ -22,6 +23,7 @@ export class Services {
   readonly photos: PhotoService;
   readonly push: PushService;
   readonly messages: MessageService;
+  readonly stats: StatsService;
 
   constructor(repos: Repositories, dataSource: DataSource, blacklist: Cache, storage: FileStorage) {
     this.auth = new AuthService(repos, blacklist, storage);
@@ -32,6 +34,7 @@ export class Services {
     this.photos = new PhotoService(repos, storage, this.moderation);
     this.push = new PushService(repos);
     this.messages = new MessageService(repos, this.moderation);
+    this.stats = new StatsService(repos);
   }
 }
 
