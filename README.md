@@ -35,6 +35,12 @@ pnpm app:start        # puis i / a / w
 
 Les monorepos npm workspaces marchent mal avec Expo/RN à cause de la résolution des dépendances transitives. pnpm avec `node-linker=hoisted` (cf `.npmrc`) installe tout en un seul `node_modules/` (comme npm) mais avec un système de résolution plus prévisible. Aucune différence visible côté code.
 
+## CI
+
+Chaque push et chaque PR déclenche `.github/workflows/ci.yml` :
+- `api` : build + tests Vitest
+- `app` : typecheck + tests Vitest
+
 ## Pour la présentation (DP)
 
 Ordre de lecture des docs :
