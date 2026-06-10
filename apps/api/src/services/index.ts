@@ -24,7 +24,7 @@ export class Services {
   readonly messages: MessageService;
 
   constructor(repos: Repositories, dataSource: DataSource, blacklist: Cache, storage: FileStorage) {
-    this.auth = new AuthService(repos, blacklist);
+    this.auth = new AuthService(repos, blacklist, storage);
     this.heartbeat = new HeartbeatService(repos, dataSource);
     this.links = new LinkService(repos);
     this.states = new EmotionalStateService(repos);
