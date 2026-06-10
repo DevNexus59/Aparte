@@ -45,6 +45,7 @@ export function MyStatePicker() {
           current={null}
           onClose={() => setOpen(false)}
           onChoose={choose}
+          onClear={() => setOpen(false)}
           loading={setSt.isPending}
           error={setSt.isError ? errorMessage(setSt.error) : undefined}
         />
@@ -90,6 +91,10 @@ export function MyStatePicker() {
         current={current.state}
         onClose={() => setOpen(false)}
         onChoose={choose}
+        onClear={() => {
+          clearSt.mutate();
+          setOpen(false);
+        }}
         loading={setSt.isPending}
         error={setSt.isError ? errorMessage(setSt.error) : undefined}
       />
@@ -104,11 +109,12 @@ interface ModalProps {
   current: EmotionalState | null;
   onClose: () => void;
   onChoose: (s: EmotionalState) => void;
+  onClear: () => void;
   loading: boolean;
   error?: string;
 }
 
-function LueurModal({ open, current, onClose, onChoose, loading, error }: ModalProps) {
+function LueurModal({ open, current, onClose, onChoose, onClear, loading, error }: ModalProps) {
   const [sel, setSel] = useState<EmotionalState | null>(current);
 
   // Synchronise la sélection si on rouvre avec un état différent.
@@ -207,7 +213,7 @@ function LueurModal({ open, current, onClose, onChoose, loading, error }: ModalP
           <Button
             label={current ? 'Éteindre' : 'Plus tard'}
             variant="ghost"
-            onPress={onClose}
+            onPress={current ? onClear : onClose}
           />
         </View>
       </View>
