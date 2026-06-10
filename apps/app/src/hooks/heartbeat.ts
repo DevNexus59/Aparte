@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { journalUrl, flattenJournalPages, type JournalEntry, type JournalPage } from '@/lib/journal';
+
+export { flattenJournalPages, type JournalEntry };
 
 interface Prompt { id: number; text: string; category: string }
 
@@ -17,19 +20,6 @@ interface JournalInput {
   promptId?: number;
 }
 
-export interface JournalEntry {
-  id: string;
-  content: string;
-  type: JournalInput['type'];
-  linkId: string | null;
-  createdAt: string;
-}
-
-interface JournalPage {
-  items: JournalEntry[];
-  nextCursor: string | null;
-}
-
 export function useAddJournalEntry() {
   const qc = useQueryClient();
   return useMutation({
@@ -45,8 +35,7 @@ export function useAddJournalEntry() {
 export function useJournalEntries() {
   return useInfiniteQuery({
     queryKey: ['journal'],
-    queryFn: ({ pageParam }) =>
-      api<JournalPage>(`/heartbeat/journal?limit=20${pageParam ? `&cursor=${encodeURIComponent(pageParam)}` : ''}`),
+    queryFn: ({ pageParam }) => api<JournalPage>(journalUrl(20, pageParam)),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   });

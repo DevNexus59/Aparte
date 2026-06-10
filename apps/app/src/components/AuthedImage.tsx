@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Image, View, type StyleProp, type ImageStyle } from 'react-native';
 import Constants from 'expo-constants';
 import { useAuth } from '@/stores/auth';
+import { arrayBufferToDataUri } from '@/lib/image';
 
 const API_URL =
   (Constants.expoConfig?.extra as { apiUrl?: string } | undefined)?.apiUrl ??
@@ -32,13 +33,8 @@ export function AuthedImage({ userId, style, fallback }: Props) {
         });
         if (!res.ok) return; // 403/404 -> fallback
         const buffer = await res.arrayBuffer();
-        const bytes = new Uint8Array(buffer);
-        let binary = '';
-        for (let i = 0; i < bytes.byteLength; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
         const contentType = res.headers.get('content-type') ?? 'image/jpeg';
-        if (!cancelled) setDataUri(`data:${contentType};base64,${btoa(binary)}`);
+        if (!cancelled) setDataUri(arrayBufferToDataUri(buffer, contentType));
       } catch { /* fallback silencieux */ }
     })();
 

@@ -4,7 +4,7 @@ import { Card } from '@/components/Card';
 import { Eyebrow } from '@/components/Eyebrow';
 import { GlowField } from '@/components/GlowField';
 import { Orb } from '@/components/Orb';
-import { useJournalEntries, JournalEntry } from '@/hooks/heartbeat';
+import { useJournalEntries, flattenJournalPages, JournalEntry } from '@/hooks/heartbeat';
 import { useLinks } from '@/hooks/links';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/theme/tokens';
@@ -23,8 +23,7 @@ export default function Journal() {
     return (links.data ?? []).find((l) => l.id === linkId)?.contactName ?? null;
   };
 
-  // Plat de toutes les pages.
-  const allEntries: JournalEntry[] = (entries.data?.pages ?? []).flatMap((p) => p.items);
+  const allEntries: JournalEntry[] = flattenJournalPages(entries.data?.pages);
 
   return (
     <View className="flex-1 bg-bg">
