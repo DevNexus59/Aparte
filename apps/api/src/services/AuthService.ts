@@ -1,5 +1,6 @@
 import { Repositories } from '../repositories';
 import { Cache } from '../lib/cache';
+import type { FileStorage } from '../lib/storage';
 import { hashPassword, verifyPassword } from '../lib/password';
 import {
   signAccess, signRefresh, verifyRefresh, hashToken,
@@ -35,6 +36,7 @@ export class AuthService {
   constructor(
     private readonly repos: Repositories,
     private readonly blacklist: Cache, // B4 : blacklist d'access tokens (jti)
+    private readonly storage?: FileStorage, // suppression de la photo lors de l'effacement de compte
   ) {}
 
   async register(input: RegisterInput, ctx: AuthContext = {}): Promise<AuthResult> {
@@ -141,6 +143,30 @@ export class AuthService {
 
   async logoutAllOtherSessions(userId: string, currentRefreshHash: string): Promise<void> {
     await this.repos.refreshTokens.revokeAllForUser(userId, currentRefreshHash);
+  }
+
+  // RGPD : droit à l'effacement. Re-vérifie le mot de passe (action destructive),
+  // révoque toutes les sessions, supprime la photo de profil, puis soft-delete
+  // l'utilisateur (purge en cascade des messages/devices via UserRepository.softDelete).
+  async deleteAccount(userId: string, password: string, ctx: AuthContext = {}, accessToken?: string): Promise<void> {
+    const user = await this.repos.users.findById(userId);
+    if (!user) throw new AppError(404, 'Utilisateur introuvable');
+
+    const passwordOk = await verifyPassword(user.passwordHash, password);
+    if (!passwordOk) throw new AppError(401, 'Mot de passe incorrect');
+
+    await this.repos.refreshTokens.revokeAllForUser(userId);
+    if (accessToken) await this.blacklistAccessToken(accessToken);
+
+    if (user.photoUrl && this.storage) {
+      await this.storage.delete(user.photoUrl).catch(() => undefined);
+    }
+
+    await this.repos.audit.record({
+      userId, action: 'user.account.delete', entity: 'user', entityId: userId, ip: ctx.ip,
+    });
+
+    await this.repos.users.softDelete(userId);
   }
 
   // --- internal ---

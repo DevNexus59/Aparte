@@ -46,11 +46,13 @@ export class UserRepository extends BaseRepository<User> {
   }
 
   // RGPD : soft-delete via TypeORM, puis purge planifiée.
-  // I14 : on supprime aussi les tokens push de l'utilisateur.
+  // I14 : on supprime aussi les tokens push et les messages de l'utilisateur.
   async softDelete(userId: string): Promise<void> {
     await this.dataSource.transaction(async (em) => {
       await em.softDelete('users', userId);
       await em.delete('push_devices', { user_id: userId });
+      await em.delete('messages', { sender_id: userId });
+      await em.delete('messages', { recipient_id: userId });
     });
   }
 }

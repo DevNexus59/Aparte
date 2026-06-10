@@ -17,8 +17,12 @@ function makeRepos(opts: {
       registerFailedLogin: vi.fn(track('registerFailedLogin')),
       resetFailedLogins: vi.fn(track('resetFailedLogins')),
       create: vi.fn(),
+      softDelete: vi.fn(track('softDelete')),
     },
-    refreshTokens: { issue: vi.fn(async () => ({})) },
+    refreshTokens: {
+      issue: vi.fn(async () => ({})),
+      revokeAllForUser: vi.fn(track('revokeAllForUser')),
+    },
     audit: { record: vi.fn(track('audit')) },
   } as never;
   return { repos, calls };
@@ -80,5 +84,42 @@ describe('AuthService.login', () => {
 
     expect(repos.users.registerFailedLogin).not.toHaveBeenCalled();
     expect(repos.audit.record).toHaveBeenCalled();
+  });
+});
+
+describe('AuthService.deleteAccount', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  async function makeUser() {
+    const passwordHash = await hashPassword('correct horse battery staple');
+    return Object.assign(new User(), {
+      id: 'u1', email: 'a@b.c', passwordHash,
+      birthdate: '1990-01-01', status: 'active', role: 'user',
+      lockedUntil: null, failedLoginAttempts: 0, photoUrl: 'photo-key.jpg',
+    });
+  }
+
+  it("RGPD : refuse si le mot de passe est incorrect", async () => {
+    const user = await makeUser();
+    const { repos } = makeRepos({ user });
+    const svc = new AuthService(repos, new MemoryCache());
+
+    await expect(svc.deleteAccount('u1', 'wrong-password')).rejects.toThrow();
+
+    expect(repos.users.softDelete).not.toHaveBeenCalled();
+  });
+
+  it('RGPD : révoque les sessions, supprime la photo et soft-delete le compte', async () => {
+    const user = await makeUser();
+    const { repos } = makeRepos({ user });
+    const storage = { delete: vi.fn(async () => undefined) };
+    const svc = new AuthService(repos, new MemoryCache(), storage as never);
+
+    await svc.deleteAccount('u1', 'correct horse battery staple');
+
+    expect(repos.refreshTokens.revokeAllForUser).toHaveBeenCalledWith('u1');
+    expect(storage.delete).toHaveBeenCalledWith('photo-key.jpg');
+    expect(repos.audit.record).toHaveBeenCalled();
+    expect(repos.users.softDelete).toHaveBeenCalledWith('u1');
   });
 });

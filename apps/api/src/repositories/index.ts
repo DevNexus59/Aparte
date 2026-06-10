@@ -10,6 +10,7 @@ import { AuditLogRepository } from './AuditLogRepository';
 import { ReportRepository } from './ReportRepository';
 import { ModerationActionRepository, ModerationFlagRepository } from './ModerationRepositories';
 import { PushDeviceRepository } from './PushDeviceRepository';
+import { MessageRepository } from './MessageRepository';
 
 // Container léger : un point d'entrée pour les repositories, simple à injecter
 // dans les services (et à mocker dans les tests).
@@ -25,6 +26,7 @@ export class Repositories {
   readonly modActions: ModerationActionRepository;
   readonly modFlags: ModerationFlagRepository;
   readonly pushDevices: PushDeviceRepository;
+  readonly messages: MessageRepository;
 
   constructor(dataSource: DataSource) {
     this.users = new UserRepository(dataSource);
@@ -38,6 +40,7 @@ export class Repositories {
     this.modActions = new ModerationActionRepository(dataSource);
     this.modFlags = new ModerationFlagRepository(dataSource);
     this.pushDevices = new PushDeviceRepository(dataSource);
+    this.messages = new MessageRepository(dataSource);
   }
 }
 

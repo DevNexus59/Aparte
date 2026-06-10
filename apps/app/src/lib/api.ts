@@ -4,7 +4,7 @@ import { ApiError, NetworkError } from '@/lib/errors';
 
 export { ApiError, NetworkError };
 
-const API_URL =
+export const API_URL =
   (Constants.expoConfig?.extra as { apiUrl?: string } | undefined)?.apiUrl ??
   'http://localhost:4000';
 

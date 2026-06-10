@@ -37,6 +37,18 @@ export function useLogin() {
   });
 }
 
+// RGPD : droit à l'effacement — re-confirmation du mot de passe côté API.
+export function useDeleteAccount() {
+  const clear = useAuth((s) => s.clear);
+  return useMutation({
+    mutationFn: (password: string) =>
+      api<void>('/auth/me', { method: 'DELETE', body: { password } }),
+    onSuccess: async () => {
+      await clear();
+    },
+  });
+}
+
 // Message d'erreur lisible : si l'API renvoie des détails Zod (champs invalides),
 // on les liste — beaucoup plus utile que "Données invalides".
 export function errorMessage(e: unknown): string {

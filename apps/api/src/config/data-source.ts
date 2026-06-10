@@ -16,6 +16,7 @@ import { ModerationFlag } from '../entities/ModerationFlag';
 import { AuditLog } from '../entities/AuditLog';
 import { PushDevice } from '../entities/PushDevice';
 import { CronLock } from '../entities/CronLock';
+import { Message } from '../entities/Message';
 
 // Source de vérité du schéma : les entities. Le `schema.sql` initial devient une
 // référence historique — pour la prod on génère des migrations TypeORM.
@@ -36,7 +37,7 @@ export const AppDataSource = new DataSource({
     User, WeeklyPrompt, AuthRefreshToken, PasswordReset,
     Link, JournalEntry, Nudge, EmotionalState,
     Report, ModerationAction, ModerationFlag, AuditLog,
-    PushDevice, CronLock,
+    PushDevice, CronLock, Message,
   ],
   migrations: ['dist/migrations/*.js'],
 });

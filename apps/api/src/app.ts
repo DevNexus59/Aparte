@@ -10,6 +10,7 @@ import { statesRouter } from './routes/states.routes';
 import { moderationRouter } from './routes/moderation.routes';
 import { photosRouter } from './routes/photos.routes';
 import { pushRouter } from './routes/push.routes';
+import { messagesRouter } from './routes/messages.routes';
 import { errorHandler, requestLogger } from './middlewares/errorHandler';
 
 export function createApp() {
@@ -44,6 +45,7 @@ export function createApp() {
   app.use('/moderation', moderationRouter);
   app.use('/photos', photosRouter);
   app.use('/push', pushRouter);
+  app.use('/messages', messagesRouter);
 
   app.use(errorHandler);
   return app;

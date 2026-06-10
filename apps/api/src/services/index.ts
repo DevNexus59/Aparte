@@ -11,6 +11,7 @@ import { EmotionalStateService } from './EmotionalStateService';
 import { ModerationService } from './ModerationService';
 import { PhotoService } from './PhotoService';
 import { PushService } from './PushService';
+import { MessageService } from './MessageService';
 
 export class Services {
   readonly auth: AuthService;
@@ -20,15 +21,17 @@ export class Services {
   readonly moderation: ModerationService;
   readonly photos: PhotoService;
   readonly push: PushService;
+  readonly messages: MessageService;
 
   constructor(repos: Repositories, dataSource: DataSource, blacklist: Cache, storage: FileStorage) {
-    this.auth = new AuthService(repos, blacklist);
+    this.auth = new AuthService(repos, blacklist, storage);
     this.heartbeat = new HeartbeatService(repos, dataSource);
     this.links = new LinkService(repos);
     this.states = new EmotionalStateService(repos);
     this.moderation = new ModerationService(repos, [new NoopClassifier()]);
     this.photos = new PhotoService(repos, storage, this.moderation);
     this.push = new PushService(repos);
+    this.messages = new MessageService(repos, this.moderation);
   }
 }
 

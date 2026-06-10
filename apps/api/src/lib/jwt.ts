@@ -4,6 +4,16 @@ import crypto from 'node:crypto';
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET ?? 'dev-access-secret';
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET ?? 'dev-refresh-secret';
 
+// En prod, refuser les secrets par défaut (sinon n'importe qui peut forger des tokens).
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
+    throw new Error('JWT_ACCESS_SECRET et JWT_REFRESH_SECRET doivent être définis en production');
+  }
+  if (process.env.JWT_ACCESS_SECRET === process.env.JWT_REFRESH_SECRET) {
+    throw new Error('JWT_ACCESS_SECRET et JWT_REFRESH_SECRET doivent être distincts');
+  }
+}
+
 export const ACCESS_TTL_MS = 15 * 60 * 1000;    // 15 min
 export const REFRESH_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 j
 
