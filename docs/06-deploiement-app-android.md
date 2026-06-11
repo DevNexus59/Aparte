@@ -41,10 +41,10 @@ c'est normal et sans rapport avec le diff local existant sur
 d'env `EXPO_PUBLIC_API_URL` :
 
 - `development` → `http://localhost:4000` (dev local avec Expo Dev Client)
-- `preview` → `https://api.aparte.example` (build de test interne, pointe
+- `preview` → `https://aparte.pierrefourdin.dev` (build de test interne, pointe
   vers l'API de prod déployée — voir
   [`docs/07-deploiement-infra-k8s.md`](./07-deploiement-infra-k8s.md))
-- `production` → `https://api.aparte.example`
+- `production` → `https://aparte.pierrefourdin.dev`
 
 `apps/app/app.config.js` lit cette variable d'env au moment du build et
 surcharge `extra.apiUrl` (normalement défini dans `app.json`, qui garde sa
@@ -52,10 +52,6 @@ valeur de dev local `http://192.168.1.87:4000` non committée). L'app lit
 `Constants.expoConfig?.extra?.apiUrl` (`apps/app/src/lib/api.ts`), donc un
 build `preview`/`production` pointera automatiquement vers l'API publique
 sans toucher à `app.json`.
-
-> ⚠️ Remplace `api.aparte.example` par ton vrai sous-domaine dans
-> `apps/app/eas.json` avant de lancer un build `preview` ou `production`
-> (`grep -rl api.aparte.example apps/app/`).
 
 ## 3. Lancer un build de test interne (APK)
 
