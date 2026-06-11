@@ -1,0 +1,25 @@
+# TODO: remplacer api.aparte.example par ton vrai sous-domaine.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api
+  namespace: aparte
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - api.aparte.example
+      secretName: api-tls
+  rules:
+    - host: api.aparte.example
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 4000

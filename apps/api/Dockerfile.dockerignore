@@ -1,0 +1,15 @@
+# Patterns relatifs à la racine du monorepo (= contexte de build).
+**/node_modules
+apps/api/dist
+apps/api/uploads
+apps/api/tests
+apps/api/src/**/*.test.ts
+**/.env
+**/.env.*
+**/*.log
+.git
+
+# On exclut l'app mobile sauf son package.json (nécessaire à `pnpm install`
+# pour résoudre le workspace pnpm).
+apps/app/**
+!apps/app/package.json
