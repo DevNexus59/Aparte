@@ -180,3 +180,30 @@ fonctionnalité optionnelle.
 **Reste à faire :** tests manuels VoiceOver (iOS) et TalkBack (Android) sur
 le parcours complet — seule façon de valider une conformité EN 301 549
 réelle, non automatisable.
+
+---
+
+## 14. Publicité (préparation, format non figé)
+
+Le modèle économique repose d'abord sur le freemium éthique (§10). La
+publicité est envisagée comme **revenu complémentaire**, pas comme
+fondation : elle doit respecter les principes du §4 ou ne pas exister.
+
+**Principes (non négociables, indépendants du format choisi) :**
+- Jamais sur les écrans cœur (Battement, Cercle, sélecteur d'état) — la
+  boucle hebdomadaire reste intacte et silencieuse.
+- Jamais de format qui interrompt une action en cours (pas d'interstitiel
+  entre deux écrans, pas de rewarded video imposé).
+- **Premium reste sans publicité** — ça devient un avantage Premium
+  supplémentaire, cohérent avec le §10.
+- Consentement RGPD (UE/France) systématique avant toute publicité
+  personnalisée — pas de tracking publicitaire silencieux.
+
+**Format et emplacement : à décider.** Une bannière discrète sur un écran
+secondaire (Journal/Stats) est l'option la plus alignée avec l'esprit de
+l'app, mais rien n'est figé.
+
+**État de la préparation technique :** voir
+`docs/05-publication-play-store.md` (section C) — le SDK et le consentement
+RGPD peuvent être intégrés en amont, publicité désactivée par défaut, en
+attendant la décision de format et la création du compte AdMob.
