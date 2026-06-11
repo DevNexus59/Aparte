@@ -186,6 +186,7 @@ function AddLinkForm({ onDone }: { onDone: () => void }) {
       <Pressable
         onPress={() => Share.share({ message: inviteMessage(name.trim() || undefined) })}
         hitSlop={10}
+        accessibilityRole="button"
         className="items-center mt-1"
       >
         <Text variant="caption" tone="faded">Lui partager Cercle →</Text>
@@ -209,6 +210,8 @@ function LinkDetailSheet({ link, onClose }: { link: Link; onClose: () => void })
       <Pressable
         style={{ position: 'absolute', inset: 0 }}
         onPress={onClose}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
       />
       <View style={{
         backgroundColor: colors.surface,
@@ -222,19 +225,19 @@ function LinkDetailSheet({ link, onClose }: { link: Link; onClose: () => void })
         )}
 
         <View className="gap-3 mt-2">
-          <Pressable onPress={() => remove.mutate(link.id)} disabled={remove.isPending} hitSlop={10}>
+          <Pressable onPress={() => remove.mutate(link.id)} disabled={remove.isPending} hitSlop={10} accessibilityRole="button">
             <Text variant="body" tone="muted">
               {remove.isPending ? 'Retrait…' : 'Retirer du cercle'}
             </Text>
           </Pressable>
 
           {link.memberUserId && (
-            <Pressable onPress={() => setReporting(true)} hitSlop={10}>
+            <Pressable onPress={() => setReporting(true)} hitSlop={10} accessibilityRole="button">
               <Text variant="body" tone="faded">Signaler</Text>
             </Pressable>
           )}
 
-          <Pressable onPress={onClose} hitSlop={10}>
+          <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button">
             <Text variant="body" tone="faded">Fermer</Text>
           </Pressable>
         </View>

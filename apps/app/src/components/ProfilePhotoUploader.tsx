@@ -59,7 +59,13 @@ export function ProfilePhotoUploader({ userId, onUploaded }: Props) {
 
   return (
     <View className="items-center gap-3">
-      <Pressable onPress={pick} disabled={upload.isPending}>
+      <Pressable
+        onPress={pick}
+        disabled={upload.isPending}
+        accessibilityRole="button"
+        accessibilityLabel="Changer la photo de profil"
+        accessibilityState={{ disabled: upload.isPending, busy: upload.isPending }}
+      >
         <AuthedImage
           key={version}
           userId={userId}

@@ -31,7 +31,7 @@ export function MyStatePicker() {
   if (!current) {
     return (
       <>
-        <Pressable onPress={() => setOpen(true)}>
+        <Pressable onPress={() => setOpen(true)} accessibilityRole="button">
           <Card className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-3">
               <Orb size={26} color={colors.faded} />
@@ -71,13 +71,14 @@ export function MyStatePicker() {
           </View>
         </View>
         <View className="flex-row gap-6 mt-5">
-          <Pressable onPress={() => setOpen(true)} hitSlop={10}>
+          <Pressable onPress={() => setOpen(true)} hitSlop={10} accessibilityRole="button">
             <Text variant="caption" tone="muted">Changer</Text>
           </Pressable>
           <Pressable
             onPress={() => clearSt.mutate()}
             disabled={clearSt.isPending}
             hitSlop={10}
+            accessibilityRole="button"
           >
             <Text variant="caption" tone="faded">
               {clearSt.isPending ? '…' : 'Éteindre'}
@@ -138,6 +139,8 @@ function LueurModal({ open, current, onClose, onChoose, loading, error }: ModalP
           <Pressable
             onPress={onClose}
             hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel="Fermer"
             style={{
               width: 38, height: 38, borderRadius: 19,
               borderWidth: 1, borderColor: colors.border,
@@ -175,6 +178,9 @@ function LueurModal({ open, current, onClose, onChoose, loading, error }: ModalP
                   key={k}
                   onPress={() => setSel(k)}
                   hitSlop={8}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: on }}
+                  accessibilityLabel={s.label}
                   style={{ width: 62, alignItems: 'center', gap: 10,
                     transform: [{ scale: on ? 1.12 : 1 }] }}
                 >

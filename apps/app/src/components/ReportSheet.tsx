@@ -60,6 +60,8 @@ export function ReportSheet({ open, onClose, target }: Props) {
                   <Pressable
                     key={r.value}
                     onPress={() => setReason(r.value)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: reason === r.value }}
                     className={cn(
                       'p-4 rounded-md border',
                       reason === r.value ? 'border-accent bg-elevated' : 'border-border bg-surface',

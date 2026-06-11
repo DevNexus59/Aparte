@@ -67,6 +67,8 @@ export default function Onboarding() {
                 <Pressable
                   key={opt.value}
                   onPress={() => setIntent(opt.value)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: on }}
                   className={cn(
                     'rounded-lg border p-6 gap-2',
                     on ? 'border-accent bg-elevated' : 'border-border bg-surface',

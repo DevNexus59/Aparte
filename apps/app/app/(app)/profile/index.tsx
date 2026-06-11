@@ -36,7 +36,7 @@ export default function Profile() {
         {userId && <ProfilePhotoUploader userId={userId} />}
       </Card>
 
-      <Pressable onPress={() => router.push('/profile/stats')} hitSlop={10}>
+      <Pressable onPress={() => router.push('/profile/stats')} hitSlop={10} accessibilityRole="button">
         <Card className="flex-row items-center justify-between mt-6">
           <View className="gap-1">
             <Text variant="title">Tes traces</Text>
@@ -47,10 +47,10 @@ export default function Profile() {
       </Pressable>
 
       <View className="mt-12 items-center gap-6">
-        <Pressable onPress={logout} hitSlop={10}>
+        <Pressable onPress={logout} hitSlop={10} accessibilityRole="button">
           <Text variant="body" tone="faded">Se déconnecter</Text>
         </Pressable>
-        <Pressable onPress={() => setDeleteOpen(true)} hitSlop={10}>
+        <Pressable onPress={() => setDeleteOpen(true)} hitSlop={10} accessibilityRole="button">
           <Text variant="body" className="text-state-want-to-see">Supprimer mon compte</Text>
         </Pressable>
       </View>

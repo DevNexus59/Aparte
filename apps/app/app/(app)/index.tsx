@@ -106,6 +106,9 @@ export default function Home() {
                       onPress={() => setSelectedLinkId(
                         selectedLinkId === link.id ? null : link.id,
                       )}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: selectedLinkId === link.id }}
+                      accessibilityLabel={link.contactName}
                       className={cn(
                         'px-4 py-2 rounded-full border',
                         selectedLinkId === link.id
