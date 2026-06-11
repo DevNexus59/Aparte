@@ -12,7 +12,7 @@ export const colors = {
 
   text:       '#E8ECF1',
   muted:      '#9BA4B0',
-  faded:      '#5C6573',
+  faded:      '#8893A2', // ≈4.9:1 sur `elevated`, ≈5.5:1 sur `surface` — WCAG AA
 
   accent:     '#C9A584',
   accentHi:   '#E4C9A8',

@@ -69,6 +69,8 @@ export default function CircleScreen() {
               key={link.id}
               onPress={() => setSelectedLink(link)}
               hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel={state ? `${link.contactName}, ${STATES[state].label}` : link.contactName}
               style={{ position: 'absolute', transform: [{ translateX: pos.x }, { translateY: pos.y }] }}
             >
               <View style={{ alignItems: 'center', gap: 6 }}>
@@ -89,6 +91,8 @@ export default function CircleScreen() {
             <Pressable
               onPress={() => setAdding(true)}
               hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel="Ajouter une présence"
               style={{
                 position: 'absolute',
                 transform: [{ translateX: ghostPos.x }, { translateY: ghostPos.y }],
@@ -182,6 +186,7 @@ function AddLinkForm({ onDone }: { onDone: () => void }) {
       <Pressable
         onPress={() => Share.share({ message: inviteMessage(name.trim() || undefined) })}
         hitSlop={10}
+        accessibilityRole="button"
         className="items-center mt-1"
       >
         <Text variant="caption" tone="faded">Lui partager Cercle →</Text>
@@ -205,6 +210,8 @@ function LinkDetailSheet({ link, onClose }: { link: Link; onClose: () => void })
       <Pressable
         style={{ position: 'absolute', inset: 0 }}
         onPress={onClose}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
       />
       <View style={{
         backgroundColor: colors.surface,
@@ -218,19 +225,19 @@ function LinkDetailSheet({ link, onClose }: { link: Link; onClose: () => void })
         )}
 
         <View className="gap-3 mt-2">
-          <Pressable onPress={() => remove.mutate(link.id)} disabled={remove.isPending} hitSlop={10}>
+          <Pressable onPress={() => remove.mutate(link.id)} disabled={remove.isPending} hitSlop={10} accessibilityRole="button">
             <Text variant="body" tone="muted">
               {remove.isPending ? 'Retrait…' : 'Retirer du cercle'}
             </Text>
           </Pressable>
 
           {link.memberUserId && (
-            <Pressable onPress={() => setReporting(true)} hitSlop={10}>
+            <Pressable onPress={() => setReporting(true)} hitSlop={10} accessibilityRole="button">
               <Text variant="body" tone="faded">Signaler</Text>
             </Pressable>
           )}
 
-          <Pressable onPress={onClose} hitSlop={10}>
+          <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button">
             <Text variant="body" tone="faded">Fermer</Text>
           </Pressable>
         </View>

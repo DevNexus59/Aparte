@@ -26,12 +26,16 @@ const SIZES: Record<Size, string> = {
 };
 
 export function Button({
-  label, variant = 'primary', size = 'lg', loading, disabled, className, ...rest
+  label, variant = 'primary', size = 'lg', loading, disabled, className,
+  accessibilityRole, accessibilityLabel, accessibilityState, ...rest
 }: Props) {
   const v = VARIANTS[variant];
   return (
     <Pressable
       {...rest}
+      accessibilityRole={accessibilityRole ?? 'button'}
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled: !!disabled || !!loading, busy: !!loading, ...accessibilityState }}
       disabled={disabled || loading}
       className={cn(SIZES[size], 'items-center justify-center flex-row', v.base, className)}
       style={({ pressed }) => [{

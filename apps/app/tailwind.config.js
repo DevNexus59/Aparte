@@ -15,7 +15,8 @@ module.exports = {
         'border-soft': 'rgba(232,236,241,0.08)',
 
         // Textes
-        text:       { DEFAULT: '#E8ECF1', muted: '#9BA4B0', faded: '#5C6573' },
+        // faded : #8893A2 (≈4.9:1 sur `elevated`, ≈5.5:1 sur `surface` — WCAG AA)
+        text:       { DEFAULT: '#E8ECF1', muted: '#9BA4B0', faded: '#8893A2' },
 
         // Accent — Aube (ambre doux), avec une version "haute lumière"
         accent:     { DEFAULT: '#C9A584', hi: '#E4C9A8', hover: '#D4B295', pressed: '#B89473' },

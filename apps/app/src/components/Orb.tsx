@@ -5,6 +5,7 @@ import Animated, {
   withRepeat, withTiming, Easing,
 } from 'react-native-reanimated';
 import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
+import { useReducedMotion } from '@/hooks/accessibility';
 import { colors, hexA } from '@/theme/tokens';
 
 interface Props {
@@ -31,12 +32,13 @@ export function Orb({
   dim = 1,
   style,
 }: Props) {
+  const reducedMotion = useReducedMotion();
   const haloScale = useSharedValue(1);
   const haloOpacity = useSharedValue(0.82);
   const coreOpacity = useSharedValue(0.9);
 
   useEffect(() => {
-    if (!breathing) {
+    if (!breathing || reducedMotion) {
       haloScale.value = 1;
       haloOpacity.value = 0.82;
       coreOpacity.value = 1;
@@ -54,7 +56,7 @@ export function Orb({
       withTiming(1, { duration: 2800, easing: Easing.inOut(Easing.sin) }),
       -1, true,
     );
-  }, [breathing, haloScale, haloOpacity, coreOpacity]);
+  }, [breathing, reducedMotion, haloScale, haloOpacity, coreOpacity]);
 
   const haloStyle = useAnimatedStyle(() => ({
     transform: [{ scale: haloScale.value }],

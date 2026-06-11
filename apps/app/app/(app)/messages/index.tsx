@@ -50,7 +50,7 @@ export default function MessagesList() {
           renderItem={({ item }) => {
             const last = lastByUser.get(item.memberUserId as string) ?? null;
             return (
-              <Pressable onPress={() => router.push(`/messages/${item.memberUserId}`)}>
+              <Pressable onPress={() => router.push(`/messages/${item.memberUserId}`)} accessibilityRole="button">
                 <Card className="flex-row items-center gap-4">
                   <AuthedImage
                     userId={item.memberUserId as string}

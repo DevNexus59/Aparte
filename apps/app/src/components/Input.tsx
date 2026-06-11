@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { View, TextInput, TextInputProps } from 'react-native';
+import { useEffect, useState } from 'react';
+import { AccessibilityInfo, View, TextInput, TextInputProps } from 'react-native';
 import { Text } from './Text';
 import { cn } from '@/lib/cn';
+import { colors } from '@/theme/tokens';
 
 interface Props extends Omit<TextInputProps, 'className'> {
   label?: string;
@@ -9,15 +10,23 @@ interface Props extends Omit<TextInputProps, 'className'> {
   className?: string;
 }
 
-export function Input({ label, error, className, onFocus, onBlur, ...rest }: Props) {
+export function Input({
+  label, error, className, onFocus, onBlur,
+  accessibilityLabel, ...rest
+}: Props) {
   const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (error) AccessibilityInfo.announceForAccessibility(error);
+  }, [error]);
 
   return (
     <View className={cn('gap-2', className)}>
       {label && <Text variant="caption" tone="muted">{label}</Text>}
       <TextInput
         {...rest}
-        placeholderTextColor="#5C6573"
+        accessibilityLabel={accessibilityLabel ?? label}
+        placeholderTextColor={colors.faded}
         onFocus={(e) => { setFocused(true); onFocus?.(e); }}
         onBlur={(e) => { setFocused(false); onBlur?.(e); }}
         className={cn(
@@ -26,7 +35,11 @@ export function Input({ label, error, className, onFocus, onBlur, ...rest }: Pro
           focused ? 'border-accent' : 'border-border',
         )}
       />
-      {error && <Text variant="caption" className="text-state-want-to-see">{error}</Text>}
+      {error && (
+        <Text variant="caption" className="text-state-want-to-see" accessibilityLiveRegion="polite">
+          {error}
+        </Text>
+      )}
     </View>
   );
 }
