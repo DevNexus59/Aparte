@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import path from 'node:path';
 import { DataSource } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
@@ -39,5 +40,8 @@ export const AppDataSource = new DataSource({
     Report, ModerationAction, ModerationFlag, AuditLog,
     PushDevice, CronLock, Message,
   ],
-  migrations: ['dist/migrations/*.js'],
+  // __dirname pointe vers src/config en dev (ts-node) et dist/config en prod
+  // (build tsc) : le glob retombe donc naturellement sur les fichiers .ts ou
+  // .js du dossier migrations correspondant.
+  migrations: [path.join(__dirname, '..', 'migrations', '*.{ts,js}')],
 });

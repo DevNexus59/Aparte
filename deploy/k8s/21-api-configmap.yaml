@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+  namespace: aparte
+data:
+  NODE_ENV: production
+  PORT: "4000"
+  DB_HOST: mysql.aparte.svc.cluster.local
+  DB_PORT: "3306"
+  DB_NAME: aparte
+  # Origine(s) autorisées en CORS — utile si une build web (Expo web) ou un
+  # autre client navigateur appelle l'API. Les apps mobiles natives
+  # (iOS/Android) n'envoient pas d'en-tête Origin et ne sont pas concernées.
+  # TODO: remplacer par tes vraies origines, séparées par des virgules.
+  CORS_ORIGIN: https://app.aparte.example
