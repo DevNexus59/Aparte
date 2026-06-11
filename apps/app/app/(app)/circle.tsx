@@ -161,7 +161,7 @@ function AddLinkForm({ onDone }: { onDone: () => void }) {
       <View>
         <Eyebrow>Ajouter une présence</Eyebrow>
         <Text variant="caption" tone="faded" className="mt-2">
-          Tu peux la rajouter avant qu'elle utilise Cercle. Tu changeras d'avis quand tu voudras.
+          Tu peux la rajouter avant qu'elle utilise Aparté. Tu changeras d'avis quand tu voudras.
         </Text>
       </View>
 
@@ -189,7 +189,7 @@ function AddLinkForm({ onDone }: { onDone: () => void }) {
         accessibilityRole="button"
         className="items-center mt-1"
       >
-        <Text variant="caption" tone="faded">Lui partager Cercle →</Text>
+        <Text variant="caption" tone="faded">Lui partager Aparté →</Text>
       </Pressable>
     </Card>
   );

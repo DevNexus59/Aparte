@@ -23,7 +23,7 @@ async function main() {
   initRealtime(server);
 
   server.listen(port, () => {
-    console.log(`[http] Cercle API en écoute sur http://localhost:${port}`);
+    console.log(`[http] Aparté API en écoute sur http://localhost:${port}`);
   });
 }
 

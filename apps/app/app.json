@@ -1,18 +1,18 @@
 {
   "expo": {
-    "name": "Cercle",
-    "slug": "cercle",
-    "scheme": "cercle",
+    "name": "Aparté",
+    "slug": "aparte",
+    "scheme": "aparte",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cercle.app"
+      "bundleIdentifier": "com.aparte.app"
     },
     "android": {
-      "package": "com.cercle.app",
+      "package": "com.aparte.app",
       "edgeToEdgeEnabled": true
     },
     "web": {
