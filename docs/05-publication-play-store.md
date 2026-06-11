@@ -157,6 +157,22 @@ etc.).
 **Correction** : à traiter au moment de l'activation, pas avant — éviter de
 déclarer un partage de données qui n'existe pas encore.
 
+### 🟡 D11. Nom final de l'app — vérification de marque complète
+
+**Constat** : une recherche préliminaire (App Store/Play Store + INPI) sur
+« Cercle » a identifié des conflits significatifs : une app « Cercle App »
+existe déjà sur l'App Store FR, « Mon Cercle » occupe un positionnement
+quasi identique (cercle privé, sans pub), et une marque « CERCLE » est
+probablement déposée en classe 9 (logiciels). Nouveau nom de travail
+retenu : **« Aparté »** — recherche préliminaire propre (aucune app ni
+marque logiciel identifiée), un point dans le BOPI non vérifié.
+**Correction** : avant tout dépôt de marque INPI ou investissement
+branding (logo, store listing, domaine, bundle id), faire une recherche
+d'antériorités complète (outil officiel INPI ou conseil en propriété
+industrielle) sur « Aparté ». Le mot « Cercle » reste utilisé dans
+`01-spec-mvp.md` pour désigner la fonctionnalité « ton cercle de proches »
+(§7, §10) — pas de renommage de code/bundle id à ce stade.
+
 ---
 
 ## Ordre suggéré
@@ -170,9 +186,12 @@ déclarer un partage de données qui n'existe pas encore.
    (test fermé).
 5. **D7** — à démarrer en parallèle dès que possible (délai
    incompressible).
-6. **D9, D10** — préparation pub, sans urgence tant que le format (§14)
+6. **D11** — recherche d'antériorités complète sur « Aparté », à boucler
+   avant D6 (la fiche store a besoin du nom final) et avant tout dépôt de
+   marque.
+7. **D9, D10** — préparation pub, sans urgence tant que le format (§14)
    n'est pas choisi.
-7. **D8** — optionnel, après B3/B4.
+8. **D8** — optionnel, après B3/B4.
 
 ## Statut détaillé
 
@@ -193,3 +212,4 @@ déclarer un partage de données qui n'existe pas encore.
 | I8 | SecureStore Android | 🟡 cf. `03-audit-initial.md` |
 | D9 | SDK pub + UMP (préparation) | 🟢 différé — décision format |
 | D10 | Data Safety / politique — volet pub | 🟢 différé — au moment de l'activation |
+| D11 | Nom final + recherche d'antériorités complète | 🟡 « Aparté » retenu, vérif. INPI complète à faire |

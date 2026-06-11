@@ -1,5 +1,14 @@
 # Spec Produit — MVP
-### (nom de travail : « Cercle » — à définir)
+### (nom de travail : « Aparté » — anciennement « Cercle »)
+
+> **Note de nommage** (voir `docs/05-publication-play-store.md`, item D11) :
+> une recherche de conflits de marque a identifié des risques sérieux sur
+> « Cercle » (app concurrente du même nom, positionnement quasi identique
+> chez « Mon Cercle », marque déposée probable en classe logiciel). Nom de
+> travail retenu : **« Aparté »** — recherche préliminaire propre,
+> vérification INPI complète à faire avant tout dépôt. Le mot « Cercle »
+> reste utilisé ci-dessous pour désigner la **fonctionnalité** « ton cercle
+> de proches » (§7, §10) — ce n'est plus le nom de l'app.
 
 ---
 
