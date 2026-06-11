@@ -41,8 +41,7 @@ export function DateField({ label, value, onChangeIso, error }: Props) {
     if (fromIso !== digits && (value !== '' || digits === '')) {
       setDigits(fromIso);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value, digits]);
 
   function handleChange(text: string) {
     const next = text.replace(/\D/g, '').slice(0, 8);

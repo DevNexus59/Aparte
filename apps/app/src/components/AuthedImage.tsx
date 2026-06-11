@@ -42,5 +42,5 @@ export function AuthedImage({ userId, style, fallback }: Props) {
   }, [userId, accessToken]);
 
   if (!dataUri) return <View style={style}>{fallback}</View>;
-  return <Image source={{ uri: dataUri }} style={style} />;
+  return <Image source={{ uri: dataUri }} style={style} accessibilityIgnoresInvertColors />;
 }

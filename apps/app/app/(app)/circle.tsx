@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Pressable, ActivityIndicator, Share } from 'react-native';
+import { View, Pressable, ActivityIndicator, Share, Modal } from 'react-native';
 import { Text } from '@/components/Text';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
@@ -200,56 +200,59 @@ function LinkDetailSheet({ link, onClose }: { link: Link; onClose: () => void })
   const [reporting, setReporting] = useState(false);
 
   return (
-    <View
-      style={{
-        position: 'absolute', inset: 0,
-        backgroundColor: colors.bgDeep + 'e6',
-        justifyContent: 'flex-end',
-      }}
-    >
-      <Pressable
-        style={{ position: 'absolute', inset: 0 }}
-        onPress={onClose}
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-      />
-      <View style={{
-        backgroundColor: colors.surface,
-        borderTopLeftRadius: 22, borderTopRightRadius: 22,
-        borderTopWidth: 1, borderColor: colors.border,
-        padding: 26, gap: 18, paddingBottom: 40,
-      }}>
-        <Text variant="editorial-title">{link.contactName}</Text>
-        {link.contactPhone && (
-          <Text variant="body" tone="muted">{link.contactPhone}</Text>
-        )}
-
-        <View className="gap-3 mt-2">
-          <Pressable onPress={() => remove.mutate(link.id)} disabled={remove.isPending} hitSlop={10} accessibilityRole="button">
-            <Text variant="body" tone="muted">
-              {remove.isPending ? 'Retrait…' : 'Retirer du cercle'}
-            </Text>
-          </Pressable>
-
-          {link.memberUserId && (
-            <Pressable onPress={() => setReporting(true)} hitSlop={10} accessibilityRole="button">
-              <Text variant="body" tone="faded">Signaler</Text>
-            </Pressable>
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.bgDeep + 'e6',
+          justifyContent: 'flex-end',
+        }}
+      >
+        <Pressable
+          style={{ position: 'absolute', inset: 0 }}
+          onPress={onClose}
+          accessible={false}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        />
+        <View style={{
+          backgroundColor: colors.surface,
+          borderTopLeftRadius: 22, borderTopRightRadius: 22,
+          borderTopWidth: 1, borderColor: colors.border,
+          padding: 26, gap: 18, paddingBottom: 40,
+        }}>
+          <Text variant="editorial-title">{link.contactName}</Text>
+          {link.contactPhone && (
+            <Text variant="body" tone="muted">{link.contactPhone}</Text>
           )}
 
-          <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button">
-            <Text variant="body" tone="faded">Fermer</Text>
-          </Pressable>
-        </View>
+          <View className="gap-3 mt-2">
+            <Pressable onPress={() => remove.mutate(link.id)} disabled={remove.isPending} hitSlop={10} accessibilityRole="button">
+              <Text variant="body" tone="muted">
+                {remove.isPending ? 'Retrait…' : 'Retirer du cercle'}
+              </Text>
+            </Pressable>
 
-        {link.memberUserId && (
-          <ReportSheet
-            open={reporting}
-            onClose={() => setReporting(false)}
-            target={{ reportedUserId: link.memberUserId, contentType: 'profile', contentId: link.memberUserId }}
-          />
-        )}
+            {link.memberUserId && (
+              <Pressable onPress={() => setReporting(true)} hitSlop={10} accessibilityRole="button">
+                <Text variant="body" tone="faded">Signaler</Text>
+              </Pressable>
+            )}
+
+            <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button">
+              <Text variant="body" tone="faded">Fermer</Text>
+            </Pressable>
+          </View>
+
+          {link.memberUserId && (
+            <ReportSheet
+              open={reporting}
+              onClose={() => setReporting(false)}
+              target={{ reportedUserId: link.memberUserId, contentType: 'profile', contentId: link.memberUserId }}
+            />
+          )}
+        </View>
       </View>
-    </View>
+    </Modal>
   );
 }
