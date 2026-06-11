@@ -38,6 +38,13 @@ const TONE_CLASS: Record<Tone, string> = {
   accent:  'text-accent',
 };
 
+// Variantes utilisées comme titres d'écran/section : exposées comme
+// "header" aux lecteurs d'écran (navigation par titres VoiceOver/TalkBack).
+const HEADING_VARIANTS = new Set<Variant>([
+  'title', 'display', 'hero',
+  'editorial-title', 'editorial-display', 'editorial-hero',
+]);
+
 export function Text({
   variant = 'body',
   tone = 'default',
@@ -51,6 +58,7 @@ export function Text({
   const fontOverride = italic ? 'font-editorial-italic' : undefined;
   return (
     <RNText
+      accessibilityRole={HEADING_VARIANTS.has(variant) ? 'header' : undefined}
       className={cn(VARIANT_CLASS[variant], TONE_CLASS[tone], fontOverride, className)}
       style={style}
       {...rest}

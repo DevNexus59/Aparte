@@ -69,6 +69,8 @@ export default function CircleScreen() {
               key={link.id}
               onPress={() => setSelectedLink(link)}
               hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel={state ? `${link.contactName}, ${STATES[state].label}` : link.contactName}
               style={{ position: 'absolute', transform: [{ translateX: pos.x }, { translateY: pos.y }] }}
             >
               <View style={{ alignItems: 'center', gap: 6 }}>
@@ -89,6 +91,8 @@ export default function CircleScreen() {
             <Pressable
               onPress={() => setAdding(true)}
               hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel="Ajouter une présence"
               style={{
                 position: 'absolute',
                 transform: [{ translateX: ghostPos.x }, { translateY: ghostPos.y }],

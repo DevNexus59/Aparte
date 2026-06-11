@@ -61,6 +61,9 @@ function CustomTabBar({ state, navigation }: BottomTabBarProps) {
               });
               if (!active && !event.defaultPrevented) navigation.navigate(route.name);
             }}
+            accessibilityRole="tab"
+            accessibilityLabel={meta.label}
+            accessibilityState={{ selected: active }}
             style={{ flex: 1, alignItems: 'center', gap: 5, paddingVertical: 8 }}
           >
             <View style={{ opacity: active ? 1 : 0.6 }}>

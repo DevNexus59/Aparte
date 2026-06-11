@@ -44,7 +44,7 @@ export default function Conversation() {
       <GlowField glowColors={[colors.accent]} intensity={0.08} />
       <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
         <View className="flex-row items-center gap-3 px-[22px] pt-4 pb-3 border-b border-border">
-          <Pressable onPress={() => router.back()} hitSlop={10}>
+          <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button" accessibilityLabel="Retour">
             <Text variant="body" tone="muted">←</Text>
           </Pressable>
           <Text variant="editorial-title">{contactName}</Text>
