@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Pressable, ActivityIndicator } from 'react-native';
+import { View, Pressable, ActivityIndicator, Share } from 'react-native';
 import { Text } from '@/components/Text';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
@@ -11,6 +11,7 @@ import { ReportSheet } from '@/components/ReportSheet';
 import { useLinks, useCreateLink, useRemoveLink, Link } from '@/hooks/links';
 import { useMyState, useCircleStates } from '@/hooks/states';
 import { errorMessage } from '@/hooks/auth';
+import { inviteMessage } from '@/lib/share';
 import { STATES, colors, EmotionalState } from '@/theme/tokens';
 
 const MAX_LINKS = 3;
@@ -177,6 +178,14 @@ function AddLinkForm({ onDone }: { onDone: () => void }) {
           disabled={!name.trim()}
         />
       </View>
+
+      <Pressable
+        onPress={() => Share.share({ message: inviteMessage(name.trim() || undefined) })}
+        hitSlop={10}
+        className="items-center mt-1"
+      >
+        <Text variant="caption" tone="faded">Lui partager Cercle →</Text>
+      </Pressable>
     </Card>
   );
 }
