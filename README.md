@@ -1,4 +1,4 @@
-# Cercle — monorepo
+# Aparté — monorepo
 
 > Sanctuaire relationnel minimaliste — 3 personnes proches, anti-dopamine, design system Aube.
 

@@ -37,7 +37,7 @@ export default function Login() {
               <Orb size={70} color={colors.accent} breathing ring />
             </View>
 
-            <Eyebrow>Cercle</Eyebrow>
+            <Eyebrow>Aparté</Eyebrow>
             <Text variant="editorial-display" className="mt-3">
               Bon retour.
             </Text>

@@ -1,6 +1,6 @@
-# Cercle — API
+# Aparté — API
 
-Backend **Express + TypeScript + TypeORM (MySQL)** pour le MVP « Cercle ».
+Backend **Express + TypeScript + TypeORM (MySQL)** pour le MVP « Aparté ».
 Architecture **POO en couches** : entities → repositories → services → routes.
 
 ## Démarrage

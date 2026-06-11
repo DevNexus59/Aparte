@@ -1,4 +1,4 @@
-// Tokens du design Cercle. Doit rester aligné avec tailwind.config.js
+// Tokens du design Aparté. Doit rester aligné avec tailwind.config.js
 // (les couleurs sont accessibles via classes Tailwind dans le markup,
 // ces constantes servent aux composants qui passent par du style RN).
 

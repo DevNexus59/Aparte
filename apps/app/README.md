@@ -1,4 +1,4 @@
-# Cercle — App (Expo)
+# Aparté — App (Expo)
 
 Front React Native + Expo Router + TanStack Query + Zustand.
 Cible iOS, Android, Web. TypeScript strict, alias `@/*` vers `src/`.

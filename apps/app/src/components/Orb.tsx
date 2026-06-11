@@ -21,7 +21,7 @@ interface Props {
 }
 
 // Un orbe = un astre. Halo radial (dilate), corps avec dégradé,
-// anneau fin optionnel. La métaphore centrale du design Cercle.
+// anneau fin optionnel. La métaphore centrale du design Aparté.
 // Le cycle de respiration : 5.6s (2.8s aller, 2.8s retour) — assez lent
 // pour ne jamais distraire, juste rappeler que l'astre est vivant.
 export function Orb({

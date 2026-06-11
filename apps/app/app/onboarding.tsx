@@ -52,7 +52,7 @@ export default function Onboarding() {
             <Orb size={88} color={colors.accent} breathing ring />
           </View>
 
-          <Eyebrow>Cercle</Eyebrow>
+          <Eyebrow>Aparté</Eyebrow>
           <Text variant="editorial-display" className="mt-3">
             Bienvenue.
           </Text>
