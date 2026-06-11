@@ -9,6 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -45,6 +46,9 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "@typescript-eslint/parser": "^8",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-native-a11y": "^3.5.1",
     "typescript": "~5.9.2",
     "vitest": "^2.1.5"
   }

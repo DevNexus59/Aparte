@@ -77,11 +77,14 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <AuthGate>
           <StatusBar style="light" />
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#0E1217' } }}>
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="onboarding" />
-            <Stack.Screen name="(app)" />
-          </Stack>
+          {/* Déclare la langue de l'app pour VoiceOver/TalkBack (WCAG 3.1.1) */}
+          <View accessibilityLanguage="fr-FR" style={{ flex: 1 }}>
+            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#0E1217' } }}>
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="onboarding" />
+              <Stack.Screen name="(app)" />
+            </Stack>
+          </View>
         </AuthGate>
       </SafeAreaProvider>
     </QueryClientProvider>

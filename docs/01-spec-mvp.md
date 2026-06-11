@@ -143,3 +143,40 @@ L'app se veut « émotionnellement safe » — la sécurité fait partie de l'AD
 - Nombre de relances effectivement suivies d'une action réelle (l'app pousse-t-elle à agir ?)
 - Rétention à 4 semaines **sans** notifications agressives
 - Verbatim qualitatif : « je me sens plus proche de mes gens »
+
+---
+
+## 13. Accessibilité (conformité UE)
+
+L'app doit être utilisable avec un lecteur d'écran (VoiceOver / TalkBack), un
+contraste suffisant et sans dépendre uniquement de la couleur — exigences de
+la **Directive UE 2019/882 (European Accessibility Act)**, déclinées pour le
+mobile via la norme **EN 301 549**, elle-même alignée sur **WCAG 2.1 niveau AA**.
+C'est un principe directeur au même titre que le Trust & Safety (§8), pas une
+fonctionnalité optionnelle.
+
+**Mis en place :**
+- Tous les éléments interactifs (boutons, sélecteurs d'état, options,
+  cartes cliquables) annoncent leur rôle, leur libellé et leur état
+  (sélectionné / coché / désactivé / en cours) aux lecteurs d'écran.
+- Les titres d'écran et de section sont navigables comme « titres ».
+- Le réglage OS « Réduire les animations » est respecté : l'orbe (Battement,
+  Cercle, sélecteur d'état) cesse de « respirer ».
+- Contrastes texte conformes AA (4.5:1 minimum) ; les couleurs des états
+  émotionnels (orbes) atteignent ≥ 5:1 sur tous les fonds de l'app (norme
+  non-textuelle WCAG 1.4.11 : 3:1 minimum).
+- Sur l'écran Cercle, l'état d'un proche n'est plus signalé **seulement**
+  par la couleur de son orbe : le libellé (« Disponible », « Fatigué·e
+  socialement »…) est inclus dans sa description vocale.
+- Les fenêtres modales (signaler, supprimer le compte, poser sa lueur, fiche
+  de lien) isolent le focus du lecteur d'écran : le contenu derrière n'est
+  plus atteignable tant que la fenêtre est ouverte.
+- Langue de l'app déclarée (français) pour une prononciation correcte par
+  VoiceOver/TalkBack.
+- Un lint dédié (`eslint-plugin-react-native-a11y`, `pnpm --filter
+  cercle-app lint`) tourne en CI pour empêcher les régressions
+  d'accessibilité sur les futurs écrans.
+
+**Reste à faire :** tests manuels VoiceOver (iOS) et TalkBack (Android) sur
+le parcours complet — seule façon de valider une conformité EN 301 549
+réelle, non automatisable.

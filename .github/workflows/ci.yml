@@ -44,4 +44,6 @@ jobs:
 
       - run: pnpm --filter cercle-app typecheck
 
+      - run: pnpm --filter cercle-app lint
+
       - run: pnpm --filter cercle-app test
