@@ -1,41 +1,78 @@
-# Déploiement infra — VM perso + Kubernetes (k3s)
+# Déploiement infra — k3s sur `portfolio-vm`
 
-Ce document décrit comment héberger l'API **Aparté** (`apps/api`) sur une VM
-Ubuntu Server personnelle avec **k3s** (Kubernetes léger, 1 nœud), MySQL dans
-le cluster, TLS via Let's Encrypt, et un déploiement automatisé depuis
-GitHub Actions.
+Ce document décrit comment héberger l'API **Aparté** (`apps/api`) sur
+**`portfolio-vm`** (VM `virsh` qui héberge déjà tes autres projets/apps) avec
+**k3s** (Kubernetes léger, 1 nœud), MySQL dans le cluster, et un déploiement
+automatisé depuis GitHub Actions.
 
 > Tous les fichiers `deploy/k8s/*.yaml` utilisent le sous-domaine
 > **`aparte.pierrefourdin.dev`** et l'image **`ghcr.io/devnexus59/cercle-api`**.
 
+## Architecture retenue
+
+Ton reverse proxy existant **termine déjà le TLS** (il a les certificats
+Let's Encrypt) et redirige le trafic HTTP en clair vers les VMs cibles. On
+réutilise exactement ce modèle :
+
+```
+Internet ──HTTPS──> reverse proxy (TLS) ──HTTP──> portfolio-vm:30080 ──> Service "api" (NodePort) ──> Pod api:4000
+```
+
+Conséquences concrètes par rapport à une install k3s "par défaut" :
+
+- **Pas de cert-manager / Let's Encrypt dans le cluster** : le TLS est déjà
+  géré par ton reverse proxy, donc inutile de le refaire dans k3s.
+- **Pas d'Ingress Traefik** : on expose l'API directement via un Service
+  Kubernetes de type **NodePort** (port fixe `30080`), que ton reverse proxy
+  appelle en HTTP — exactement comme il le fait pour tes autres VMs/apps.
+- **On désactive Traefik à l'install de k3s** : par défaut, k3s installe
+  Traefik et essaie de réserver les ports **80/443** sur la VM. Comme un
+  autre service écoute déjà sur ces ports sur `portfolio-vm`, on évite tout
+  conflit en ne l'installant pas (on n'en a pas besoin avec l'approche
+  NodePort).
+
 ## 0. Prérequis
 
-- Une VM **Ubuntu Server** (22.04/24.04), avec un accès SSH root/sudo.
-- Un nom de domaine dont tu contrôles la zone DNS, avec le sous-domaine
-  `aparte.pierrefourdin.dev` que tu vas pointer vers l'IP publique de la VM.
-- Le routeur/box devant la VM doit rediriger les ports **80** et **443**
-  (TCP) vers la VM (nécessaires pour le challenge HTTP-01 de Let's Encrypt et
-  pour le trafic HTTPS).
+- Accès SSH à `portfolio-vm` (utilisateur avec `sudo`).
 - Un Personal Access Token GitHub avec le scope `read:packages` (pour que la
   VM puisse pull l'image privée depuis ghcr.io).
+- Connaître l'IP de `portfolio-vm` sur le réseau où vit ton reverse proxy
+  (ex. réseau `virsh` interne ou IP de la VM hôte) — c'est cette IP que le
+  reverse proxy utilisera pour joindre `:30080`.
 
-## 1. Installer k3s
+## 1. Installer k3s sans Traefik
 
-Oui, **k3s s'installe très bien sur Ubuntu Server** — c'est même l'un des cas
-d'usage principaux (1 seul service systemd, ~100 Mo de RAM pour le control
-plane, ingress Traefik + `local-path-provisioner` inclus par défaut).
+Connecte-toi en SSH sur `portfolio-vm`, puis vérifie d'abord que les ports
+80/443 sont bien occupés par autre chose (pour confirmer pourquoi on
+désactive Traefik) :
 
 ```bash
-curl -sfL https://get.k3s.io | sh -
+sudo ss -tlnp | grep -E ':80|:443'
+```
+
+Installe k3s en désactivant Traefik (et le `local-storage` LoadBalancer
+associé, `servicelb`, qui n'est utile que pour des Services de type
+`LoadBalancer` — on n'en utilise pas) :
+
+```bash
+curl -sfL https://get.k3s.io | sh -s - --disable=traefik --disable=servicelb
 ```
 
 Ça installe k3s comme service systemd (`k3s.service`), démarré
-automatiquement. Vérifie :
+automatiquement, avec :
+- le control plane Kubernetes (~100 Mo de RAM),
+- `local-path-provisioner` (fournit le `StorageClass` par défaut, utilisé
+  par MySQL et le volume d'uploads — voir plus bas),
+- **sans** Traefik ni servicelb, donc sans toucher aux ports 80/443.
+
+Vérifie que ça tourne :
 
 ```bash
 sudo systemctl status k3s
 sudo k3s kubectl get nodes
 ```
+
+Tu dois voir un nœud `Ready`.
 
 ### Récupérer le kubeconfig pour ton utilisateur
 
@@ -45,26 +82,12 @@ sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sudo chown $(id -u):$(id -g) ~/.kube/config
 # k3s utilise un alias "kubectl" — sinon :
 echo 'alias kubectl="k3s kubectl"' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 À partir d'ici, `kubectl get nodes` doit fonctionner sans `sudo`.
 
-### DNS
-
-Dans la zone DNS de ton domaine, crée un enregistrement `A` :
-
-```
-aparte.pierrefourdin.dev.   A   <IP publique de la VM>
-```
-
-## 2. Installer cert-manager
-
-```bash
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.2/cert-manager.yaml
-kubectl get pods -n cert-manager   # attendre que les 3 pods soient Running
-```
-
-## 3. Créer le namespace et les Secrets réels
+## 2. Créer le namespace et les Secrets réels
 
 Les fichiers `deploy/k8s/*-secret.example.yaml` sont des **modèles** —
 génère les vrais secrets directement sur la VM, ils ne doivent jamais être
@@ -99,10 +122,10 @@ kubectl create secret docker-registry ghcr-pull-secret -n aparte \
   --docker-email=<ton-email>
 ```
 
-## 4. Appliquer les manifests
+## 3. Appliquer les manifests
 
-Ordre important : namespace → MySQL → ConfigMap/Secrets API → migration →
-API → ingress.
+Ordre important : namespace → MySQL → ConfigMap/Secrets API → API → Service
+→ migration.
 
 ```bash
 kubectl apply -f deploy/k8s/00-namespace.yaml
@@ -116,27 +139,64 @@ kubectl rollout status statefulset/mysql -n aparte
 
 kubectl apply -f deploy/k8s/24-migration-job.yaml
 kubectl wait --for=condition=complete --timeout=120s job/aparte-migrate -n aparte
-
-kubectl apply -f deploy/k8s/31-cluster-issuer.yaml
-kubectl apply -f deploy/k8s/30-ingress.yaml
 ```
 
 > Le Deployment `api` va d'abord échouer à puller `ghcr.io/.../cercle-api:latest`
 > tant qu'aucune image n'a été poussée (Lot CI/CD ci-dessous). C'est normal —
 > il se mettra à jour automatiquement après le premier push sur `main`.
 
+## 4. Configurer le reverse proxy
+
+Sur la VM/machine où tourne ton reverse proxy (celui qui a déjà le certificat
+TLS pour `aparte.pierrefourdin.dev` ou qui peut en obtenir un), ajoute un
+site qui :
+- termine le TLS pour `aparte.pierrefourdin.dev`,
+- forward en HTTP vers `http://<IP de portfolio-vm>:30080`,
+- propage les en-têtes nécessaires aux WebSockets (Socket.IO).
+
+Exemple nginx :
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name aparte.pierrefourdin.dev;
+
+    # ... directives ssl_certificate / ssl_certificate_key existantes ...
+
+    location / {
+        proxy_pass http://<IP de portfolio-vm>:30080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Adapte la syntaxe si ton reverse proxy est Traefik, Caddy ou HAProxy — les
+trois points importants restent : TLS côté reverse proxy, forward HTTP vers
+`portfolio-vm:30080`, et upgrade WebSocket.
+
 ## 5. Vérifications
+
+Depuis `portfolio-vm` (ou toute machine du même réseau), vérifie que l'API
+répond bien sur le NodePort :
 
 ```bash
 kubectl get pods -n aparte
-kubectl get certificate -n aparte     # READY=True une fois Let's Encrypt validé
-curl https://aparte.pierrefourdin.dev/health
+curl http://localhost:30080/health
 # -> {"ok":true}
 ```
 
-Note WebSocket : Traefik (ingress par défaut de k3s) supporte nativement les
-upgrades HTTP → WebSocket, donc Socket.IO fonctionne sans configuration
-supplémentaire sur cet Ingress.
+Puis depuis l'extérieur, via le reverse proxy :
+
+```bash
+curl https://aparte.pierrefourdin.dev/health
+# -> {"ok":true}
+```
 
 ## 6. CI/CD — build & déploiement automatique
 
@@ -149,7 +209,7 @@ Le workflow `.github/workflows/docker-publish.yml` :
    jour le Deployment avec la nouvelle image (`kubectl set image` +
    `kubectl rollout status`).
 
-### Installer le runner self-hébergé sur la VM
+### Installer le runner self-hébergé sur `portfolio-vm`
 
 Sur GitHub : Settings → Actions → Runners → "New self-hosted runner", choisir
 Linux x64, puis suivre les commandes affichées (téléchargement de
@@ -173,7 +233,7 @@ adéquates).
 Une fois le runner actif, un push sur `main` qui touche `apps/api/**`
 déclenche automatiquement build → push ghcr.io → migration → rollout. Tu
 peux aussi déclencher le tout manuellement la première fois en suivant les
-commandes de la section 4 avec une image que tu as buildée et poussée à la
+commandes de la section 3 avec une image que tu as buildée et poussée à la
 main :
 
 ```bash

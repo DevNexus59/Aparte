@@ -1,11 +1,16 @@
+# NodePort : le reverse proxy externe (autre VM, TLS déjà géré là-bas)
+# atteint l'API directement sur <IP de portfolio-vm>:30080 en HTTP, sans
+# passer par un Ingress/cert-manager dans le cluster.
 apiVersion: v1
 kind: Service
 metadata:
   name: api
   namespace: aparte
 spec:
+  type: NodePort
   selector:
     app: api
   ports:
     - port: 4000
       targetPort: 4000
+      nodePort: 30080
