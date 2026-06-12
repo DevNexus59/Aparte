@@ -58,15 +58,13 @@ jobs:
     steps:
       - name: Roll out new image
         run: |
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE="ghcr.io/$OWNER/cercle-api:${{ github.sha }}"
+          cd /opt/aparte
 
-          # 1. Migrations d'abord (le Job utilise :latest, qui vient d'être
-          #    poussé avec le même contenu que $IMAGE).
-          kubectl delete job aparte-migrate -n aparte --ignore-not-found
-          kubectl apply -f deploy/k8s/24-migration-job.yaml
-          kubectl wait --for=condition=complete --timeout=120s job/aparte-migrate -n aparte
+          # 1. Récupère la nouvelle image :latest qui vient d'être poussée.
+          docker compose pull
 
-          # 2. Puis le rollout de l'API avec l'image taggée par sha.
-          kubectl set image deployment/api api="$IMAGE" -n aparte
-          kubectl rollout status deployment/api -n aparte --timeout=180s
+          # 2. Migrations avant le redémarrage de l'API.
+          docker compose run --rm api pnpm migration:run:prod
+
+          # 3. Redémarre l'API avec la nouvelle image.
+          docker compose up -d
