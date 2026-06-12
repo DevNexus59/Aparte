@@ -19,16 +19,29 @@ testing** de Google Play, pour des tests dev/QA avant publication publique.
 
 ## 1. Connexion EAS
 
+> ⚠️ **Toutes les commandes `eas` de ce document doivent être lancées
+> depuis `apps/app`**, pas depuis la racine du monorepo. Lancée depuis la
+> racine, EAS Build résout le projet à la racine (`package.json` de
+> `cercle`, sans champ `main`), et le bundling Android échoue avec
+> `Unable to resolve module ../../App from .../node_modules/expo/AppEntry.js`
+> (avec `node-linker=hoisted`, `apps/app/node_modules` n'existe pas, donc
+> rien n'indique à EAS que `apps/app` est la racine du projet Expo).
+
 Depuis `apps/app` :
 
 ```bash
-npx eas login
+npx eas-cli@latest login
 ```
+
+> `npx eas` seul échoue avec `could not determine executable to run` : le
+> paquet npm s'appelle `eas-cli` (il expose juste la commande `eas`), donc
+> il faut soit `npx eas-cli@latest ...`, soit l'installer
+> (`pnpm add -D eas-cli` dans `apps/app`) pour pouvoir faire `npx eas ...`.
 
 Si ce n'est pas déjà fait, lie le projet local à un projet Expo distant :
 
 ```bash
-npx eas build:configure
+npx eas-cli@latest build:configure
 ```
 
 Cette commande peut ajouter un champ `extra.eas.projectId` à `app.json` —
@@ -53,18 +66,20 @@ valeur de dev local `http://192.168.1.87:4000` non committée). L'app lit
 build `preview`/`production` pointera automatiquement vers l'API publique
 sans toucher à `app.json`.
 
-## 3. Lancer un build de test interne (APK)
+## 3. Lancer un build de test interne (AAB)
 
 ```bash
-npx eas build --platform android --profile preview
+npx eas-cli@latest build --platform android --profile preview
 ```
 
-- Le profil `preview` produit un **APK** (`android.buildType: apk`),
-  installable directement ou téléversable sur Play Console.
+- Le profil `preview` produit un **AAB** (`android.buildType: app-bundle`).
+  Play Console refuse désormais les APK pour toute nouvelle app, y compris
+  sur la piste "Internal testing" (message "Importez un app bundle
+  valide") — d'où ce choix, identique au profil `production`.
 - EAS gère la signature automatiquement (keystore généré et stocké côté
   Expo si c'est le premier build — choisis "Generate new keystore" quand
   proposé).
-- À la fin du build, EAS fournit un lien de téléchargement de l'APK.
+- À la fin du build, EAS fournit un lien de téléchargement de l'AAB.
 
 ## 4. Créer l'app dans Google Play Console
 
@@ -90,7 +105,7 @@ supplémentaire n'est requise.
 ## 5. Téléverser le build sur la piste "Internal testing"
 
 1. Play Console → **Tester → Tests internes** → **Créer une version**.
-2. Téléverser l'APK généré à l'étape 3.
+2. Téléverser l'AAB généré à l'étape 3.
 3. Renseigner les notes de version (ex. "Build de test interne — Aparté").
 4. Enregistrer puis **Vérifier la version** → **Lancer le déploiement vers
    les testeurs internes**.
@@ -109,7 +124,7 @@ supplémentaire n'est requise.
 À chaque nouvelle version à tester :
 
 ```bash
-npx eas build --platform android --profile preview
+npx eas-cli@latest build --platform android --profile preview
 ```
 
 puis répéter l'étape 5 (nouvelle version sur la piste Internal testing).
@@ -123,7 +138,7 @@ Pour un build `production` (AAB, destiné à une piste publique ou fermée
 plus large) :
 
 ```bash
-npx eas build --platform android --profile production
+npx eas-cli@latest build --platform android --profile production
 ```
 
 Avant de soumettre ce build à une revue Google Play publique, traiter les
