@@ -5,16 +5,14 @@ Ubuntu Server personnelle avec **k3s** (Kubernetes léger, 1 nœud), MySQL dans
 le cluster, TLS via Let's Encrypt, et un déploiement automatisé depuis
 GitHub Actions.
 
-> Tous les fichiers `deploy/k8s/*.yaml` utilisent le placeholder
-> **`api.aparte.example`** et l'image **`ghcr.io/devnexus59/cercle-api`**.
-> Remplace `api.aparte.example` par ton vrai sous-domaine partout
-> (`grep -rl api.aparte.example deploy/`) avant de déployer.
+> Tous les fichiers `deploy/k8s/*.yaml` utilisent le sous-domaine
+> **`aparte.pierrefourdin.dev`** et l'image **`ghcr.io/devnexus59/cercle-api`**.
 
 ## 0. Prérequis
 
 - Une VM **Ubuntu Server** (22.04/24.04), avec un accès SSH root/sudo.
-- Un nom de domaine dont tu contrôles la zone DNS, avec un sous-domaine (ex.
-  `api.tondomaine.fr`) que tu vas pointer vers l'IP publique de la VM.
+- Un nom de domaine dont tu contrôles la zone DNS, avec le sous-domaine
+  `aparte.pierrefourdin.dev` que tu vas pointer vers l'IP publique de la VM.
 - Le routeur/box devant la VM doit rediriger les ports **80** et **443**
   (TCP) vers la VM (nécessaires pour le challenge HTTP-01 de Let's Encrypt et
   pour le trafic HTTPS).
@@ -56,7 +54,7 @@ echo 'alias kubectl="k3s kubectl"' >> ~/.bashrc
 Dans la zone DNS de ton domaine, crée un enregistrement `A` :
 
 ```
-api.tondomaine.fr.   A   <IP publique de la VM>
+aparte.pierrefourdin.dev.   A   <IP publique de la VM>
 ```
 
 ## 2. Installer cert-manager
@@ -132,7 +130,7 @@ kubectl apply -f deploy/k8s/30-ingress.yaml
 ```bash
 kubectl get pods -n aparte
 kubectl get certificate -n aparte     # READY=True une fois Let's Encrypt validé
-curl https://api.tondomaine.fr/health
+curl https://aparte.pierrefourdin.dev/health
 # -> {"ok":true}
 ```
 

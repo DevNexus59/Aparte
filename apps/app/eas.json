@@ -20,7 +20,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.aparte.example"
+        "EXPO_PUBLIC_API_URL": "https://aparte.pierrefourdin.dev"
       }
     },
     "production": {
@@ -29,7 +29,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.aparte.example"
+        "EXPO_PUBLIC_API_URL": "https://aparte.pierrefourdin.dev"
       }
     }
   },
