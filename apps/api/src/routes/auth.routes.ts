@@ -13,6 +13,7 @@ const registerSchema = z.object({
   password: z.string().min(12),                  // I5 : longueur > complexité
   displayName: z.string().min(1).max(80),
   birthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  phone: z.string().max(30).optional(),
 });
 
 const loginSchema = z.object({

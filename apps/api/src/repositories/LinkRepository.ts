@@ -37,7 +37,7 @@ export class LinkRepository extends BaseRepository<Link> {
     try {
       const em = queryRunner.manager;
 
-      // Résolution éventuelle du membre inscrit.
+      // Résolution éventuelle du membre inscrit, via email ou téléphone.
       let memberUserId: string | null = null;
       if (input.memberEmail) {
         const member = await em.findOne(User, {
@@ -45,6 +45,12 @@ export class LinkRepository extends BaseRepository<Link> {
         });
         if (member) memberUserId = member.id;
         // Si l'email n'est pas inscrit, lien créé comme simple contact (intentionnel).
+      }
+      if (!memberUserId && input.contactPhone) {
+        const member = await em.findOne(User, {
+          where: { phone: input.contactPhone, deletedAt: IsNull(), status: 'active' as never },
+        });
+        if (member) memberUserId = member.id;
       }
 
       // B2 : décompte des liens actifs sous transaction.

@@ -21,7 +21,13 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Aparté utilise vos contacts pour vous aider à ajouter des personnes à votre cercle."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -31,12 +31,12 @@ export default function Home() {
   const lueurColor = myState.data ? STATES[myState.data.state].color : colors.accent;
 
   async function onSave() {
-    if (!content.trim() || !prompt.data) return;
+    if (!content.trim()) return;
     try {
       await addEntry.mutateAsync({
         content,
         type: 'reflection',
-        promptId: prompt.data.id,
+        promptId: prompt.data?.id,
         linkId: selectedLinkId ?? undefined,
       });
       setContent('');

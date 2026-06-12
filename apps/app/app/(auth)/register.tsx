@@ -20,13 +20,14 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [birthdate, setBirthdate] = useState('');
+  const [phone, setPhone] = useState('');
 
   const canSubmit = email && password.length >= 12 && displayName && birthdate;
 
   async function submit() {
     if (!canSubmit) return;
     try {
-      await register.mutateAsync({ email, password, displayName, birthdate });
+      await register.mutateAsync({ email, password, displayName, birthdate, phone: phone.trim() || undefined });
     } catch { /* erreur affichée */ }
   }
 
@@ -73,6 +74,14 @@ export default function Register() {
                 value={birthdate}
                 onChangeIso={setBirthdate}
               />
+              <Input
+                label="Téléphone (optionnel)"
+                value={phone} onChangeText={setPhone}
+                keyboardType="phone-pad"
+              />
+              <Text variant="caption" tone="faded">
+                Permet à tes proches de te retrouver plus facilement dans Aparté.
+              </Text>
             </View>
 
             {register.isError && (

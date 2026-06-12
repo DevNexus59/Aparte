@@ -29,6 +29,10 @@ export class User {
   @Column({ type: 'varchar', length: 512, nullable: true })
   photoUrl!: string | null;
 
+  @Index()
+  @Column({ type: 'varchar', length: 30, nullable: true })
+  phone!: string | null;
+
   @Column({ type: 'date' })
   birthdate!: string;
 

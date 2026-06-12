@@ -15,9 +15,11 @@ export function ProfilePhotoUploader({ userId, onUploaded }: Props) {
   const upload = useUploadProfilePhoto();
   const [error, setError] = useState<string | null>(null);
   const [version, setVersion] = useState(0);
+  const [justUploaded, setJustUploaded] = useState(false);
 
   async function pick() {
     setError(null);
+    setJustUploaded(false);
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
       setError('Accès aux photos refusé');
@@ -51,6 +53,8 @@ export function ProfilePhotoUploader({ userId, onUploaded }: Props) {
         name: asset.fileName ?? 'photo.jpg',
       });
       setVersion((v) => v + 1);
+      setJustUploaded(true);
+      setTimeout(() => setJustUploaded(false), 3000);
       onUploaded?.();
     } catch (e) {
       setError(errorMessage(e));
@@ -78,7 +82,11 @@ export function ProfilePhotoUploader({ userId, onUploaded }: Props) {
         />
       </Pressable>
       <Text variant="caption" tone="muted">
-        {upload.isPending ? 'Envoi…' : 'Photo de profil (privée, visible par ton cercle)'}
+        {upload.isPending
+          ? 'Envoi…'
+          : justUploaded
+            ? 'Photo enregistrée ✓'
+            : 'Photo de profil (privée, visible par ton cercle) — appuie pour changer'}
       </Text>
       {error && (
         <Text variant="caption" className="text-state-want-to-see">{error}</Text>

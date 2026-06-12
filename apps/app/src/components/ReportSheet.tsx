@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Modal, Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from './Text';
 import { Button } from './Button';
 import { Input } from './Input';
@@ -22,6 +23,7 @@ const REASONS: Array<{ value: ReportReason; label: string }> = [
 
 export function ReportSheet({ open, onClose, target }: Props) {
   const file = useFileReport();
+  const insets = useSafeAreaInsets();
   const [reason, setReason] = useState<ReportReason | null>(null);
   const [description, setDescription] = useState('');
   const [done, setDone] = useState(false);
@@ -38,7 +40,7 @@ export function ReportSheet({ open, onClose, target }: Props) {
   return (
     <Modal visible={open} animationType="fade" transparent onRequestClose={onClose}>
       <View className="flex-1 bg-bg/90 justify-end">
-        <View className="bg-surface p-6 rounded-t-lg gap-6 border-t border-border">
+        <View className="bg-surface p-6 rounded-t-lg gap-6 border-t border-border" style={{ paddingBottom: 24 + insets.bottom }}>
           {done ? (
             <View className="gap-3">
               <Text variant="title">Signalement envoyé.</Text>

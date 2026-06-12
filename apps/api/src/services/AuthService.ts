@@ -19,6 +19,7 @@ interface RegisterInput {
   password: string;
   displayName: string;
   birthdate: string;
+  phone?: string;
 }
 
 interface AuthContext {
@@ -62,6 +63,7 @@ export class AuthService {
       passwordHash,
       displayName: input.displayName,
       birthdate: input.birthdate,
+      phone: input.phone,
     });
 
     await this.repos.audit.record({
