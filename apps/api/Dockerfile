@@ -3,6 +3,8 @@
 #   docker build -f apps/api/Dockerfile -t aparte-api:latest .
 
 FROM node:20-alpine AS base
+ENV COREPACK_HOME=/opt/corepack \
+    COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 # --- Étape build : installe tout le workspace et compile l'API ---
@@ -25,7 +27,7 @@ COPY --from=build /prod/api/package.json ./package.json
 COPY --from=build /repo/apps/api/dist ./dist
 
 RUN addgroup -S aparte && adduser -S aparte -G aparte \
-    && mkdir -p uploads && chown -R aparte:aparte /app
+    && mkdir -p uploads && chown -R aparte:aparte /app "$COREPACK_HOME"
 
 USER aparte
 EXPOSE 4000
