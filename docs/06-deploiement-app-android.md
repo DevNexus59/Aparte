@@ -56,7 +56,7 @@ d'env `EXPO_PUBLIC_API_URL` :
 - `development` → `http://localhost:4000` (dev local avec Expo Dev Client)
 - `preview` → `https://aparte.pierrefourdin.dev` (build de test interne, pointe
   vers l'API de prod déployée — voir
-  [`docs/07-deploiement-infra-k8s.md`](./07-deploiement-infra-k8s.md))
+  [`docs/07-deploiement-infra.md`](./07-deploiement-infra.md))
 - `production` → `https://aparte.pierrefourdin.dev`
 
 `apps/app/app.config.js` lit cette variable d'env au moment du build et
@@ -145,4 +145,4 @@ Avant de soumettre ce build à une revue Google Play publique, traiter les
 items 🔴/🟠 de
 [`docs/05-publication-play-store.md`](./05-publication-play-store.md)
 (politique de confidentialité, URL API HTTPS publique — déjà couverte par
-le déploiement k8s, etc.).
+le déploiement infra, etc.).
