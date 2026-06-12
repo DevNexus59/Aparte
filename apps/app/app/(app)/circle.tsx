@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { View, Pressable, ActivityIndicator, Share, Modal } from 'react-native';
+import * as Contacts from 'expo-contacts';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/Text';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
@@ -144,6 +146,21 @@ function AddLinkForm({ onDone }: { onDone: () => void }) {
   const create = useCreateLink();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [contactError, setContactError] = useState<string | null>(null);
+
+  async function pickContact() {
+    setContactError(null);
+    try {
+      const contact = await Contacts.presentContactPickerAsync();
+      if (!contact) return;
+      if (contact.name) setName(contact.name);
+      const number = contact.phoneNumbers?.[0]?.number;
+      if (number) setPhone(number);
+    } catch {
+      setContactError("Impossible d'ouvrir les contacts");
+    }
+  }
 
   async function submit() {
     if (!name.trim()) return;
@@ -151,6 +168,7 @@ function AddLinkForm({ onDone }: { onDone: () => void }) {
       await create.mutateAsync({
         contactName: name.trim(),
         contactPhone: phone.trim() || undefined,
+        memberEmail: email.trim() || undefined,
       });
       onDone();
     } catch { /* erreur affichée */ }
@@ -165,8 +183,23 @@ function AddLinkForm({ onDone }: { onDone: () => void }) {
         </Text>
       </View>
 
+      <Pressable onPress={pickContact} hitSlop={10} accessibilityRole="button">
+        <Text variant="caption" tone="muted">Choisir depuis mes contacts</Text>
+      </Pressable>
+      {contactError && (
+        <Text variant="caption" className="text-state-want-to-see">{contactError}</Text>
+      )}
+
       <Input label="Prénom ou surnom" value={name} onChangeText={setName} placeholder="ex. Léa" />
       <Input label="Téléphone (optionnel)" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+      <Input
+        label="Email (optionnel)"
+        value={email} onChangeText={setEmail}
+        placeholder="Si déjà inscrit·e sur Aparté"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
+      />
 
       {create.isError && (
         <Text variant="caption" className="text-state-want-to-see">{errorMessage(create.error)}</Text>
@@ -198,6 +231,7 @@ function AddLinkForm({ onDone }: { onDone: () => void }) {
 function LinkDetailSheet({ link, onClose }: { link: Link; onClose: () => void }) {
   const remove = useRemoveLink();
   const [reporting, setReporting] = useState(false);
+  const insets = useSafeAreaInsets();
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
@@ -219,15 +253,32 @@ function LinkDetailSheet({ link, onClose }: { link: Link; onClose: () => void })
           backgroundColor: colors.surface,
           borderTopLeftRadius: 22, borderTopRightRadius: 22,
           borderTopWidth: 1, borderColor: colors.border,
-          padding: 26, gap: 18, paddingBottom: 40,
+          padding: 26, gap: 18, paddingBottom: 40 + insets.bottom,
         }}>
           <Text variant="editorial-title">{link.contactName}</Text>
           {link.contactPhone && (
             <Text variant="body" tone="muted">{link.contactPhone}</Text>
           )}
 
+          {!link.memberUserId && (
+            <Text variant="caption" tone="faded">
+              {link.contactName} n'utilise pas encore Aparté — vous pourrez vous écrire
+              dès qu'iel aura rejoint l'appli et t'aura ajouté·e en retour.
+            </Text>
+          )}
+
           <View className="gap-3 mt-2">
-            <Pressable onPress={() => remove.mutate(link.id)} disabled={remove.isPending} hitSlop={10} accessibilityRole="button">
+            {!link.memberUserId && (
+              <Pressable
+                onPress={() => Share.share({ message: inviteMessage(link.contactName) })}
+                hitSlop={10}
+                accessibilityRole="button"
+              >
+                <Text variant="body" tone="muted">Lui partager Aparté</Text>
+              </Pressable>
+            )}
+
+            <Pressable onPress={() => remove.mutate(link.id, { onSuccess: onClose })} disabled={remove.isPending} hitSlop={10} accessibilityRole="button">
               <Text variant="body" tone="muted">
                 {remove.isPending ? 'Retrait…' : 'Retirer du cercle'}
               </Text>

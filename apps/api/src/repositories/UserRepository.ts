@@ -7,6 +7,7 @@ interface CreateUserInput {
   passwordHash: string;
   displayName: string;
   birthdate: string;
+  phone?: string;
 }
 
 export class UserRepository extends BaseRepository<User> {
@@ -50,9 +51,9 @@ export class UserRepository extends BaseRepository<User> {
   async softDelete(userId: string): Promise<void> {
     await this.dataSource.transaction(async (em) => {
       await em.softDelete('users', userId);
-      await em.delete('push_devices', { user_id: userId });
-      await em.delete('messages', { sender_id: userId });
-      await em.delete('messages', { recipient_id: userId });
+      await em.delete('push_devices', { userId });
+      await em.delete('messages', { senderId: userId });
+      await em.delete('messages', { recipientId: userId });
     });
   }
 }

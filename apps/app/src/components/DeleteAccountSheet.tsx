@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Modal } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from './Text';
 import { Button } from './Button';
 import { Input } from './Input';
@@ -14,6 +15,7 @@ interface Props {
 export function DeleteAccountSheet({ open, onClose }: Props) {
   const deleteAccount = useDeleteAccount();
   const [password, setPassword] = useState('');
+  const insets = useSafeAreaInsets();
 
   async function confirm() {
     if (!password) return;
@@ -31,7 +33,7 @@ export function DeleteAccountSheet({ open, onClose }: Props) {
   return (
     <Modal visible={open} animationType="fade" transparent onRequestClose={close}>
       <View className="flex-1 bg-bg/90 justify-end">
-        <View className="bg-surface p-6 rounded-t-lg gap-6 border-t border-border">
+        <View className="bg-surface p-6 rounded-t-lg gap-6 border-t border-border" style={{ paddingBottom: 24 + insets.bottom }}>
           <View className="gap-2">
             <Text variant="title">Supprimer ton compte</Text>
             <Text variant="body" tone="muted">

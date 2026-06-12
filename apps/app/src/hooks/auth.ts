@@ -13,6 +13,7 @@ interface RegisterInput {
   password: string;
   displayName: string;
   birthdate: string;
+  phone?: string;
 }
 
 export function useRegister() {

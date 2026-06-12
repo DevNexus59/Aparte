@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Pressable, Modal } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from './Text';
 import { Card } from './Card';
 import { Button } from './Button';
@@ -117,6 +118,7 @@ interface ModalProps {
 
 function LueurModal({ open, current, onClose, onChoose, onClear, loading, error }: ModalProps) {
   const [sel, setSel] = useState<EmotionalState | null>(current);
+  const insets = useSafeAreaInsets();
 
   // Synchronise la sélection si on rouvre avec un état différent.
   // (volontairement sans useEffect : `current` ne change que d'extérieur,
@@ -209,7 +211,7 @@ function LueurModal({ open, current, onClose, onChoose, onClear, loading, error 
         </View>
 
         {/* Actions */}
-        <View style={{ paddingHorizontal: 26, paddingBottom: 40, gap: 6 }}>
+        <View style={{ paddingHorizontal: 26, paddingBottom: 40 + insets.bottom, gap: 6 }}>
           <Button
             label={loading ? 'Pose…' : 'Poser ma lueur'}
             disabled={!sel || loading}
