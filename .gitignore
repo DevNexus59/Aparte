@@ -10,6 +10,7 @@ apps/api/uploads/
 apps/app/.expo/
 apps/app/dist/
 apps/app/web-build/
+apps/app/google-service-account.json
 
 # OS / Editor
 .DS_Store

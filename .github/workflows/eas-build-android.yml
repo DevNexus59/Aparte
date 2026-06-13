@@ -1,0 +1,40 @@
+name: EAS Build Android (preview)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/app/**'
+      - 'pnpm-lock.yaml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Write Google Play service account key
+        working-directory: apps/app
+        run: echo '${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_KEY }}' > google-service-account.json
+
+      - name: Build and submit to internal testing
+        working-directory: apps/app
+        env:
+          EAS_NO_VCS: 1
+        run: eas build --platform android --profile preview --non-interactive --auto-submit
