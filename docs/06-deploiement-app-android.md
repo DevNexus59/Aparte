@@ -132,7 +132,53 @@ puis répéter l'étape 5 (nouvelle version sur la piste Internal testing).
 automatiquement le `versionCode` Android à chaque build, donc pas de
 conflit de version sur Play Console.
 
-## 8. Vers la production
+## 8. Automatisation : build + dépôt sur Internal testing à chaque push sur `main`
+
+Le workflow [`.github/workflows/eas-build-android.yml`](../.github/workflows/eas-build-android.yml)
+relance automatiquement un build `preview` et le dépose sur la piste
+**Internal testing** dès qu'un push sur `main` touche `apps/app/**` ou
+`pnpm-lock.yaml`. Il faut configurer deux secrets GitHub une seule fois
+(**Settings → Secrets and variables → Actions**) :
+
+### `EXPO_TOKEN`
+
+Token d'accès personnel Expo, pour que `eas build` s'exécute en CI sans
+login interactif :
+
+```bash
+npx eas-cli@latest login   # si pas déjà connecté
+npx eas-cli@latest token:create
+```
+
+Copier le token affiché dans le secret GitHub `EXPO_TOKEN`.
+
+### `GOOGLE_PLAY_SERVICE_ACCOUNT_KEY`
+
+Clé JSON d'un compte de service Google Cloud autorisé à publier sur Play
+Console (utilisée par `eas submit`) :
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → IAM et
+   administration → Comptes de service → **Créer un compte de service**
+   (dans le projet associé à ton compte Google Play).
+2. Créer une clé JSON pour ce compte (**Clés → Ajouter une clé → Créer une
+   clé → JSON**) et la télécharger.
+3. Play Console → **Utilisateurs et autorisations** → **Inviter des
+   utilisateurs** → ajouter l'email du compte de service, avec au minimum
+   la permission **"Publier des applications sur les canaux de test"**
+   pour l'app `com.aparte.app`.
+4. Copier le **contenu complet du fichier JSON** (tel quel, sans encodage)
+   dans le secret GitHub `GOOGLE_PLAY_SERVICE_ACCOUNT_KEY`.
+
+> Le workflow écrit ce JSON dans `apps/app/google-service-account.json`
+> (ignoré par git, voir `.gitignore`), référencé par
+> `eas.json > submit.preview.android.serviceAccountKeyPath`.
+
+Une fois ces deux secrets configurés, chaque push sur `main` qui modifie
+l'app produit automatiquement un nouveau build et le publie sur la piste
+Internal testing — il suffit ensuite de prévenir les testeurs (le lien
+d'opt-in ne change pas, voir étape 6).
+
+## 9. Vers la production
 
 Pour un build `production` (AAB, destiné à une piste publique ou fermée
 plus large) :
