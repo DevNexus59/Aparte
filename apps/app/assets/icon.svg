@@ -1,0 +1,26 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="75%">
+      <stop offset="0%" stop-color="#171C23"/>
+      <stop offset="100%" stop-color="#0A0D11"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#C9A584" stop-opacity="0.55"/>
+      <stop offset="68%" stop-color="#C9A584" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="core" cx="38%" cy="32%" r="62%">
+      <stop offset="0%" stop-color="#E4C9A8" stop-opacity="1"/>
+      <stop offset="46%" stop-color="#C9A584" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#C9A584" stop-opacity="0.35"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- Halo -->
+  <circle cx="512" cy="512" r="430" fill="url(#halo)"/>
+
+  <!-- Corps de l'orbe -->
+  <circle cx="512" cy="512" r="260" fill="url(#core)"/>
+  <circle cx="512" cy="512" r="259" fill="none" stroke="#E4C9A8" stroke-opacity="0.35" stroke-width="2"/>
+</svg>

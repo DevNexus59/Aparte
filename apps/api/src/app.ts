@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 
 import { authRouter } from './routes/auth.routes';
 import { heartbeatRouter } from './routes/heartbeat.routes';
+import { legalRouter } from './routes/legal.routes';
 import { linksRouter } from './routes/links.routes';
 import { statesRouter } from './routes/states.routes';
 import { moderationRouter } from './routes/moderation.routes';
@@ -39,6 +40,7 @@ export function createApp() {
 
   app.get('/health', (_req, res) => res.json({ ok: true }));
 
+  app.use('/legal', legalRouter);
   app.use('/auth', authLimiter, authRouter);
   app.use('/heartbeat', heartbeatRouter);
   app.use('/links', linksRouter);
