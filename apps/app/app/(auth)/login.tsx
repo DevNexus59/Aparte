@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, ScrollView, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import Constants from 'expo-constants';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
@@ -10,9 +11,10 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Orb } from '@/components/Orb';
 import { GlowField } from '@/components/GlowField';
 import { useLogin, errorMessage } from '@/hooks/auth';
-import { colors } from '@/theme/tokens';
+import { useAccentColors } from '@/stores/accent';
 
 export default function Login() {
+  const accentColors = useAccentColors();
   const router = useRouter();
   const login = useLogin();
   const [email, setEmail] = useState('');
@@ -27,15 +29,15 @@ export default function Login() {
 
   return (
     <View className="flex-1 bg-bg">
-      <GlowField glowColors={[colors.accent]} intensity={0.16} />
+      <GlowField glowColors={[accentColors.accent]} intensity={0.16} />
       <SafeAreaView className="flex-1">
         <KeyboardAvoidingView
           className="flex-1"
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <ScrollView contentContainerStyle={{ paddingHorizontal: 26, paddingTop: 40, paddingBottom: 40 }}>
             <View className="items-center mt-6 mb-10">
-              <Orb size={70} color={colors.accent} breathing ring />
+              <Orb size={70} color={accentColors.accent} breathing ring />
             </View>
 
             <Eyebrow>Aparté</Eyebrow>
@@ -79,6 +81,10 @@ export default function Login() {
                 onPress={() => router.replace('/(auth)/register')}
               />
             </View>
+
+            <Text variant="caption" tone="muted" className="mt-8 text-center">
+              v{Constants.expoConfig?.version}
+            </Text>
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>

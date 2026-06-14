@@ -10,11 +10,15 @@ import { Input } from '@/components/Input';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Orb } from '@/components/Orb';
 import { ReportSheet } from '@/components/ReportSheet';
-import { useLinks, useCreateLink, useRemoveLink, Link } from '@/hooks/links';
+import {
+  useLinks, useCreateLink, useRemoveLink, Link,
+  useInvitations, useAcceptInvitation, useDeclineInvitation,
+} from '@/hooks/links';
 import { useMyState, useCircleStates } from '@/hooks/states';
 import { errorMessage } from '@/hooks/auth';
 import { inviteMessage } from '@/lib/share';
 import { STATES, colors, EmotionalState } from '@/theme/tokens';
+import { useAccentColors } from '@/stores/accent';
 
 const MAX_LINKS = 3;
 
@@ -31,10 +35,14 @@ export default function CircleScreen() {
   const circleStates = useCircleStates();
   const [adding, setAdding] = useState(false);
   const [selectedLink, setSelectedLink] = useState<Link | null>(null);
+  const accentColors = useAccentColors();
+  const invitations = useInvitations();
+  const acceptInvitation = useAcceptInvitation();
+  const declineInvitation = useDeclineInvitation();
 
   const activeLinks = (links.data ?? []).filter((l) => l.status === 'active');
   const remaining = MAX_LINKS - activeLinks.length;
-  const myColor = myState.data ? STATES[myState.data.state].color : colors.accent;
+  const myColor = myState.data ? STATES[myState.data.state].color : accentColors.accent;
 
   // Map state par lien (via le hook circleStates → liste d'états visibles).
   const stateByMember: Record<string, EmotionalState> = {};
@@ -52,6 +60,42 @@ export default function CircleScreen() {
         {activeLinks.length === 0 ? 'Personne encore.'
           : `${activeLinks.length} ${activeLinks.length > 1 ? 'présences' : 'présence'} · ${remaining} ${remaining > 1 ? 'restantes' : 'restante'}.`}
       </Text>
+
+      {/* Invitations : quelqu'un m'a ajouté à son cercle. */}
+      {(invitations.data ?? []).map((inv) => (
+        <Card key={inv.id} className="flex-row items-center gap-4 mt-6">
+          <Orb size={44} color={accentColors.accent} />
+          <View className="flex-1">
+            <Text variant="body" className="font-semibold">{inv.ownerDisplayName}</Text>
+            <Text variant="caption" tone="muted" className="mt-1">
+              t'a ajouté·e dans son cercle.
+            </Text>
+            {acceptInvitation.isError && acceptInvitation.variables === inv.id && (
+              <Text variant="caption" className="text-state-want-to-see mt-1">
+                {errorMessage(acceptInvitation.error)}
+              </Text>
+            )}
+          </View>
+          <View className="gap-3 items-end">
+            <Pressable
+              onPress={() => acceptInvitation.mutate(inv.id)}
+              disabled={acceptInvitation.isPending || declineInvitation.isPending}
+              hitSlop={8}
+              accessibilityRole="button"
+            >
+              <Text variant="caption" className="text-accent font-semibold">Accepter</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => declineInvitation.mutate(inv.id)}
+              disabled={acceptInvitation.isPending || declineInvitation.isPending}
+              hitSlop={8}
+              accessibilityRole="button"
+            >
+              <Text variant="caption" tone="faded">Refuser</Text>
+            </Pressable>
+          </View>
+        </Card>
+      ))}
 
       {/* Zone constellation : carré centré, 320px de haut */}
       <View style={{ height: 280, marginTop: 32, alignItems: 'center', justifyContent: 'center' }}>
@@ -114,7 +158,7 @@ export default function CircleScreen() {
 
       {/* État vide / formulaire d'ajout / actions */}
       {links.isLoading && (
-        <ActivityIndicator color={colors.accent} className="mt-4" />
+        <ActivityIndicator color={accentColors.accent} className="mt-4" />
       )}
 
       {!adding && activeLinks.length === 0 && !links.isLoading && (

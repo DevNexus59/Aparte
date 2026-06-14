@@ -18,33 +18,41 @@ module.exports = {
         // faded : #8893A2 (≈4.9:1 sur `elevated`, ≈5.5:1 sur `surface` — WCAG AA)
         text:       { DEFAULT: '#E8ECF1', muted: '#9BA4B0', faded: '#8893A2' },
 
-        // Accent — Aube (ambre doux), avec une version "haute lumière"
-        accent:     { DEFAULT: '#C9A584', hi: '#E4C9A8', hover: '#D4B295', pressed: '#B89473' },
+        // Accent — personnalisable via le sélecteur de couleur du profil.
+        // Les valeurs viennent de variables CSS posées par accentThemeVars()
+        // (cf. src/theme/accentThemes.ts), avec le pêche d'origine en repli.
+        accent: {
+          DEFAULT: 'rgb(var(--color-accent, 243 188 140) / <alpha-value>)',
+          hi:      'rgb(var(--color-accent-hi, 250 217 184) / <alpha-value>)',
+          hover:   'rgb(var(--color-accent-hover, 246 201 157) / <alpha-value>)',
+          pressed: 'rgb(var(--color-accent-pressed, 232 169 115) / <alpha-value>)',
+          text:    'rgb(var(--color-accent-text, 43 27 14) / <alpha-value>)',
+        },
 
-        // États émotionnels — désaturés, jamais alertes
+        // États émotionnels — pastels doux, jamais alertes
         state: {
-          available:      '#9DB39A',  // sauge
-          'want-to-see':  '#C9A0A5',  // rose poudré
-          'need-to-talk': '#D6B988',  // ambre doré
-          'socially-tired': '#8597A8', // bleu-gris
+          available:      '#B7DDA0',  // vert tendre
+          'want-to-see':  '#F2958F',  // corail
+          'need-to-talk': '#9FE3D2',  // menthe
+          'socially-tired': '#A6C8F0', // bleu pastel
         },
       },
 
-      // 3 piliers typographiques :
-      //  - editorial : serif Newsreader pour les moments importants (titres, libellés de lueur)
-      //  - sans     : Hanken Grotesk pour l'UI courante
+      // 3 piliers typographiques (tous en Nunito, sans-serif) :
+      //  - editorial : Nunito léger/regular pour les moments importants (titres, libellés de lueur)
+      //  - sans     : Nunito pour l'UI courante
       //  - mono     : Geist Mono pour métadonnées et placeholders techniques
       fontFamily: {
-        // poids de Newsreader
-        'editorial-light':   ['Newsreader_300Light'],
-        editorial:           ['Newsreader_400Regular'],
-        'editorial-italic':  ['Newsreader_400Regular_Italic'],
-        'editorial-medium':  ['Newsreader_500Medium'],
-        // poids de Hanken Grotesk
-        sans:    ['HankenGrotesk_500Medium'],   // par défaut UI
-        regular: ['HankenGrotesk_400Regular'],
-        semibold:['HankenGrotesk_600SemiBold'],
-        bold:    ['HankenGrotesk_700Bold'],
+        // poids de Nunito (éditorial)
+        'editorial-light':   ['Nunito_300Light'],
+        editorial:           ['Nunito_400Regular'],
+        'editorial-italic':  ['Nunito_400Regular_Italic'],
+        'editorial-medium':  ['Nunito_500Medium'],
+        // poids de Nunito (UI)
+        sans:    ['Nunito_500Medium'],   // par défaut UI
+        regular: ['Nunito_400Regular'],
+        semibold:['Nunito_600SemiBold'],
+        bold:    ['Nunito_700Bold'],
         // Geist Mono
         mono:    ['GeistMono_400Regular'],
       },

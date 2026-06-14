@@ -7,6 +7,7 @@ import { Orb } from '@/components/Orb';
 import { useJournalEntries, flattenJournalPages, JournalEntry } from '@/hooks/heartbeat';
 import { useLinks } from '@/hooks/links';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAccentColors } from '@/stores/accent';
 import { colors } from '@/theme/tokens';
 
 function formatDate(iso: string): string {
@@ -15,6 +16,7 @@ function formatDate(iso: string): string {
 }
 
 export default function Journal() {
+  const accentColors = useAccentColors();
   const entries = useJournalEntries();
   const links = useLinks();
 
@@ -27,7 +29,7 @@ export default function Journal() {
 
   return (
     <View className="flex-1 bg-bg">
-      <GlowField glowColors={[colors.accent]} intensity={0.1} />
+      <GlowField glowColors={[accentColors.accent]} intensity={0.1} />
       <SafeAreaView className="flex-1" edges={['top']}>
         <View className="px-[22px] pt-8 pb-4">
           <Eyebrow>Ton journal</Eyebrow>
@@ -37,7 +39,7 @@ export default function Journal() {
         </View>
 
         {entries.isLoading && (
-          <ActivityIndicator color={colors.accent} className="mt-12" />
+          <ActivityIndicator color={accentColors.accent} className="mt-12" />
         )}
 
         {!entries.isLoading && allEntries.length === 0 && (
@@ -71,6 +73,7 @@ export default function Journal() {
 }
 
 function Entry({ entry, linkName }: { entry: JournalEntry; linkName: string | null }) {
+  const accentColors = useAccentColors();
   return (
     <Card pad={20} className="gap-3">
       <View className="flex-row items-center gap-3">
@@ -79,7 +82,7 @@ function Entry({ entry, linkName }: { entry: JournalEntry; linkName: string | nu
           <>
             <Text variant="caption" tone="faded">·</Text>
             <View className="flex-row items-center gap-2">
-              <Orb size={10} color={colors.accent} />
+              <Orb size={10} color={accentColors.accent} />
               <Text variant="caption" tone="muted">{linkName}</Text>
             </View>
           </>

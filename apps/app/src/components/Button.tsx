@@ -1,6 +1,7 @@
 import { Pressable, PressableProps, ActivityIndicator } from 'react-native';
 import { Text } from './Text';
 import { cn } from '@/lib/cn';
+import { useAccentColors } from '@/stores/accent';
 
 type Variant = 'primary' | 'soft' | 'ghost' | 'outline';
 type Size = 'md' | 'lg';
@@ -14,7 +15,7 @@ interface Props extends Omit<PressableProps, 'children'> {
 }
 
 const VARIANTS: Record<Variant, { base: string; text: string }> = {
-  primary: { base: 'bg-accent',                                  text: '!text-[#16110B] font-semibold' },
+  primary: { base: 'bg-accent',                                  text: '!text-accent-text font-semibold' },
   soft:    { base: 'bg-elevated border border-border',           text: 'text-text font-semibold' },
   ghost:   { base: 'bg-transparent',                             text: 'text-text-muted font-semibold' },
   outline: { base: 'bg-transparent border border-border',        text: 'text-text font-semibold' },
@@ -30,6 +31,7 @@ export function Button({
   accessibilityRole, accessibilityLabel, accessibilityState, ...rest
 }: Props) {
   const v = VARIANTS[variant];
+  const accentColors = useAccentColors();
   return (
     <Pressable
       {...rest}
@@ -44,7 +46,7 @@ export function Button({
       }]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#16110B' : '#E8ECF1'} />
+        <ActivityIndicator color={variant === 'primary' ? accentColors.accentText : '#E8ECF1'} />
       ) : (
         <Text variant="body" className={v.text}>{label}</Text>
       )}

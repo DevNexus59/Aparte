@@ -77,6 +77,18 @@ export class MessageRepository extends BaseRepository<Message> {
     await this.repo.delete({ recipientId: userId } as never);
   }
 
+  // RGPD : export — tous les messages envoyés ou reçus, déchiffrement à
+  // la charge de l'appelant (champs ciphertext/iv/authTag exposés bruts).
+  findAllForUser(userId: string): Promise<Message[]> {
+    return this.repo.find({
+      where: [
+        { senderId: userId, deletedAt: IsNull() },
+        { recipientId: userId, deletedAt: IsNull() },
+      ] as never,
+      order: { createdAt: 'ASC' },
+    });
+  }
+
   // Stats non-anxiogènes : volume d'échanges (envoyés + reçus), un indicateur
   // de présence du lien — pas un score de réactivité.
   async countForUser(userId: string): Promise<number> {

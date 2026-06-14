@@ -16,7 +16,7 @@ interface Props extends TextProps {
 }
 
 // Mapping centralisé : chaque variant choisit famille, taille, ligne.
-// Les variantes "editorial-*" passent en serif Newsreader light pour
+// Les variantes "editorial-*" passent en Nunito light pour
 // les moments importants (titres de rituel, libellés de lueur).
 const VARIANT_CLASS: Record<Variant, string> = {
   caption:           'font-regular text-caption',

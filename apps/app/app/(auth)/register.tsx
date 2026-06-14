@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, ScrollView, KeyboardAvoidingView, Platform, Pressable, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/Text';
@@ -11,9 +11,11 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Orb } from '@/components/Orb';
 import { GlowField } from '@/components/GlowField';
 import { useRegister, errorMessage } from '@/hooks/auth';
-import { colors } from '@/theme/tokens';
+import { useAccentColors } from '@/stores/accent';
+import { API_URL } from '@/lib/api';
 
 export default function Register() {
+  const accentColors = useAccentColors();
   const router = useRouter();
   const register = useRegister();
 
@@ -23,9 +25,10 @@ export default function Register() {
   const [displayName, setDisplayName] = useState('');
   const [birthdate, setBirthdate] = useState('');
   const [phone, setPhone] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   const passwordsMatch = password === confirmPassword;
-  const canSubmit = email && password.length >= 12 && passwordsMatch && displayName && birthdate;
+  const canSubmit = email && password.length >= 12 && passwordsMatch && displayName && birthdate && acceptTerms;
 
   async function submit() {
     if (!canSubmit) return;
@@ -33,21 +36,22 @@ export default function Register() {
       await register.mutateAsync({
         email, password, confirmPassword, displayName, birthdate,
         phone: phone.trim() || undefined,
+        acceptTerms,
       });
     } catch { /* erreur affichée */ }
   }
 
   return (
     <View className="flex-1 bg-bg">
-      <GlowField glowColors={[colors.accent]} intensity={0.16} />
+      <GlowField glowColors={[accentColors.accent]} intensity={0.16} />
       <SafeAreaView className="flex-1">
         <KeyboardAvoidingView
           className="flex-1"
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <ScrollView contentContainerStyle={{ paddingHorizontal: 26, paddingTop: 40, paddingBottom: 40 }}>
             <View className="items-center mt-2 mb-8">
-              <Orb size={62} color={colors.accent} breathing ring />
+              <Orb size={62} color={accentColors.accent} breathing ring />
             </View>
 
             <Eyebrow>Aparté</Eyebrow>
@@ -93,6 +97,37 @@ export default function Register() {
                 Permet à tes proches de te retrouver plus facilement dans Aparté.
               </Text>
             </View>
+
+            <Pressable
+              onPress={() => setAcceptTerms((v) => !v)}
+              hitSlop={10}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: acceptTerms }}
+              className="flex-row items-start gap-3 mt-6"
+            >
+              <View
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: 6,
+                  marginTop: 2,
+                  borderWidth: 2,
+                  borderColor: accentColors.accent,
+                  backgroundColor: acceptTerms ? accentColors.accent : 'transparent',
+                }}
+              />
+              <Text variant="body" tone="muted" className="flex-1">
+                J'accepte les{' '}
+                <Text variant="body" className="text-accent" onPress={() => Linking.openURL(`${API_URL}/legal/cgu`)}>
+                  CGU
+                </Text>
+                {' '}et j'ai lu la{' '}
+                <Text variant="body" className="text-accent" onPress={() => Linking.openURL(`${API_URL}/legal/confidentialite`)}>
+                  politique de confidentialité
+                </Text>
+                .
+              </Text>
+            </Pressable>
 
             {register.isError && (
               <Text variant="caption" className="text-state-want-to-see mt-4">

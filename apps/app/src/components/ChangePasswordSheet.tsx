@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Modal } from 'react-native';
+import { View, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from './Text';
 import { Button } from './Button';
@@ -42,6 +42,10 @@ export function ChangePasswordSheet({ open, onClose }: Props) {
 
   return (
     <Modal visible={open} animationType="fade" transparent onRequestClose={close}>
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
       <View className="flex-1 bg-bg/90 justify-end">
         <View className="bg-surface p-6 rounded-t-lg gap-6 border-t border-border" style={{ paddingBottom: 24 + insets.bottom }}>
           <View className="gap-2">
@@ -98,6 +102,7 @@ export function ChangePasswordSheet({ open, onClose }: Props) {
           </View>
         </View>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

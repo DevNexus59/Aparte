@@ -10,10 +10,12 @@ import { useLinks } from '@/hooks/links';
 import { useConversations } from '@/hooks/messages';
 import { timeAgo } from '@/lib/time';
 import { inviteMessage } from '@/lib/share';
+import { useAccentColors } from '@/stores/accent';
 import { colors } from '@/theme/tokens';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function MessagesList() {
+  const accentColors = useAccentColors();
   const links = useLinks();
   const conversations = useConversations();
   const router = useRouter();
@@ -32,7 +34,7 @@ export default function MessagesList() {
 
   return (
     <View className="flex-1 bg-bg">
-      <GlowField glowColors={[colors.accent]} intensity={0.1} />
+      <GlowField glowColors={[accentColors.accent]} intensity={0.1} />
       <SafeAreaView className="flex-1" edges={['top']}>
         <View className="px-[22px] pt-8 pb-4">
           <Eyebrow>Messages</Eyebrow>
@@ -41,7 +43,7 @@ export default function MessagesList() {
           </Text>
         </View>
 
-        {isLoading && <ActivityIndicator color={colors.accent} className="mt-12" />}
+        {isLoading && <ActivityIndicator color={accentColors.accent} className="mt-12" />}
 
         {!isLoading && allActiveLinks.length === 0 && (
           <View className="px-[22px] mt-12 items-center">

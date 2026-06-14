@@ -14,12 +14,12 @@ export const colors = {
   muted:      '#9BA4B0',
   faded:      '#8893A2', // ≈4.9:1 sur `elevated`, ≈5.5:1 sur `surface` — WCAG AA
 
-  accent:     '#C9A584',
-  accentHi:   '#E4C9A8',
-  accentText: '#16110B', // texte sur fond ambre
+  accent:     '#F3BC8C',
+  accentHi:   '#FAD9B8',
+  accentText: '#2B1B0E', // texte sur fond pêche
 } as const;
 
-// États émotionnels — désaturés, label éditorial + un verbe pour l'affichage dans le cercle.
+// États émotionnels — pastels, label éditorial + un verbe pour l'affichage dans le cercle.
 export type EmotionalState = 'available' | 'want_to_see' | 'need_to_talk' | 'socially_tired';
 
 export interface StateMeta {
@@ -34,28 +34,28 @@ export const STATES: Record<EmotionalState, StateMeta> = {
   available: {
     key: 'available',
     label: 'Disponible',
-    color: '#9DB39A',
+    color: '#B7DDA0',
     verb: 'est disponible',
     description: 'Ouverte aux nouvelles, sans rien forcer.',
   },
   want_to_see: {
     key: 'want_to_see',
     label: 'Envie de voir',
-    color: '#C9A0A5',
+    color: '#F2958F',
     verb: 'a envie de te voir',
     description: 'Une présence te manque un peu.',
   },
   need_to_talk: {
     key: 'need_to_talk',
     label: 'Besoin de parler',
-    color: '#D6B988',
+    color: '#9FE3D2',
     verb: 'a besoin de parler',
     description: 'Quelque chose pèse, et tu veux le dire.',
   },
   socially_tired: {
     key: 'socially_tired',
     label: 'Fatigué·e socialement',
-    color: '#8597A8',
+    color: '#A6C8F0',
     verb: 'souffle un peu',
     description: 'Tu te retires, et c\'est très bien.',
   },

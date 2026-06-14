@@ -16,6 +16,7 @@ const registerSchema = z.object({
   displayName: z.string().min(1).max(80),
   birthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   phone: z.string().max(30).optional(),
+  acceptTerms: z.literal(true),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Les mots de passe ne correspondent pas',
   path: ['confirmPassword'],
@@ -77,6 +78,13 @@ authRouter.post('/logout-all', requireAuth, asyncHandler(async (req: AuthedReque
   const { refreshToken } = parse(refreshSchema, req.body);
   await services.auth.logoutAllOtherSessions(currentUser(req).id, hashToken(refreshToken));
   res.status(204).send();
+}));
+
+// RGPD : droit à la portabilité — export JSON de toutes les données personnelles.
+authRouter.get('/export', requireAuth, asyncHandler(async (req: AuthedRequest, res) => {
+  const data = await services.auth.exportData(currentUser(req).id);
+  res.setHeader('Content-Disposition', 'attachment; filename="aparte-export.json"');
+  res.json(data);
 }));
 
 // RGPD : droit à l'effacement — re-confirmation du mot de passe requise.

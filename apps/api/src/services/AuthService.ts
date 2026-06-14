@@ -9,6 +9,7 @@ import {
 } from '../lib/jwt';
 import { isPasswordPwned } from '../lib/hibp';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../lib/email';
+import { decryptText } from '../lib/encryption';
 import { AppError } from '../middlewares/errorHandler';
 import { User } from '../entities/User';
 
@@ -25,6 +26,7 @@ interface RegisterInput {
   displayName: string;
   birthdate: string;
   phone?: string;
+  acceptTerms: boolean;
 }
 
 interface AuthContext {
@@ -62,6 +64,12 @@ export class AuthService {
       throw new AppError(409, 'Email déjà utilisé');
     }
 
+    // RGPD : l'acceptation des CGU vaut consentement éclairé au traitement
+    // des données décrit dans la politique de confidentialité.
+    if (!input.acceptTerms) {
+      throw new AppError(400, "L'acceptation des CGU est requise pour créer un compte");
+    }
+
     const passwordHash = await hashPassword(input.password);
     const user = await this.repos.users.create({
       email: input.email,
@@ -69,6 +77,7 @@ export class AuthService {
       displayName: input.displayName,
       birthdate: input.birthdate,
       phone: input.phone,
+      termsAcceptedAt: new Date(),
     });
 
     await this.repos.audit.record({
@@ -262,6 +271,68 @@ export class AuthService {
     });
 
     await this.repos.users.softDelete(userId);
+  }
+
+  // RGPD : droit à la portabilité — un export JSON de toutes les données
+  // personnelles détenues sur l'utilisateur.
+  async exportData(userId: string): Promise<unknown> {
+    const user = await this.repos.users.findById(userId);
+    if (!user) throw new AppError(404, 'Utilisateur introuvable');
+
+    const [links, journalEntries, emotionalStates, messages, pushDevices] = await Promise.all([
+      this.repos.links.listForOwner(userId),
+      this.repos.journal.findAllForUser(userId),
+      this.repos.states.findAllForUser(userId),
+      this.repos.messages.findAllForUser(userId),
+      this.repos.pushDevices.listForUser(userId),
+    ]);
+
+    return {
+      exportedAt: new Date().toISOString(),
+      profile: {
+        id: user.id,
+        email: user.email,
+        displayName: user.displayName,
+        phone: user.phone,
+        birthdate: user.birthdate,
+        onboardingIntent: user.onboardingIntent,
+        createdAt: user.createdAt,
+        emailVerifiedAt: user.emailVerifiedAt,
+      },
+      circle: links.map((l) => ({
+        id: l.id,
+        contactName: l.contactName,
+        contactPhone: l.contactPhone,
+        memberEmail: l.memberEmail,
+        status: l.status,
+        createdAt: l.createdAt,
+      })),
+      journalEntries: journalEntries.map((j) => ({
+        id: j.id,
+        type: j.type,
+        content: j.content,
+        linkId: j.linkId,
+        createdAt: j.createdAt,
+      })),
+      emotionalStates: emotionalStates.map((s) => ({
+        id: s.id,
+        state: s.state,
+        setAt: s.setAt,
+        expiresAt: s.expiresAt,
+      })),
+      messages: messages.map((m) => ({
+        id: m.id,
+        direction: m.senderId === userId ? 'sent' : 'received',
+        otherUserId: m.senderId === userId ? m.recipientId : m.senderId,
+        content: decryptText({ ciphertext: m.ciphertext, iv: m.iv, authTag: m.authTag }),
+        createdAt: m.createdAt,
+      })),
+      pushDevices: pushDevices.map((d) => ({
+        platform: d.platform,
+        deviceInfo: d.deviceInfo,
+        createdAt: d.createdAt,
+      })),
+    };
   }
 
   // --- internal ---

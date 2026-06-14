@@ -28,12 +28,12 @@ export class Services {
   constructor(repos: Repositories, dataSource: DataSource, blacklist: Cache, storage: FileStorage) {
     this.auth = new AuthService(repos, blacklist, storage);
     this.heartbeat = new HeartbeatService(repos, dataSource);
-    this.links = new LinkService(repos);
+    this.push = new PushService(repos);
+    this.links = new LinkService(repos, this.push);
     this.states = new EmotionalStateService(repos);
     this.moderation = new ModerationService(repos, [new NoopClassifier()]);
     this.photos = new PhotoService(repos, storage, this.moderation);
-    this.push = new PushService(repos);
-    this.messages = new MessageService(repos, this.moderation);
+    this.messages = new MessageService(repos, this.moderation, this.push);
     this.stats = new StatsService(repos);
   }
 }

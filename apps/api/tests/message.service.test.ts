@@ -21,6 +21,8 @@ function makeMessage(overrides: Partial<Message> & { content?: string } = {}): M
   });
 }
 
+const push = { send: vi.fn(async () => undefined) } as never;
+
 function makeRepos(opts: {
   reciprocal?: boolean;
   links?: { memberUserId: string; status: string }[];
@@ -48,7 +50,7 @@ describe('MessageService.send', () => {
   it('refuse si les utilisateurs ne sont pas réciproquement liés', async () => {
     const repos = makeRepos({ reciprocal: false });
     const moderation = { screenText: vi.fn(async () => true) } as never;
-    const svc = new MessageService(repos, moderation);
+    const svc = new MessageService(repos, moderation, push);
 
     await expect(svc.send('u1', 'u2', 'salut')).rejects.toThrow(AppError);
   });
@@ -56,7 +58,7 @@ describe('MessageService.send', () => {
   it('refuse si la modération bloque le contenu', async () => {
     const repos = makeRepos({ reciprocal: true });
     const moderation = { screenText: vi.fn(async () => false) } as never;
-    const svc = new MessageService(repos, moderation);
+    const svc = new MessageService(repos, moderation, push);
 
     await expect(svc.send('u1', 'u2', 'contenu interdit')).rejects.toThrow(AppError);
   });
@@ -64,7 +66,7 @@ describe('MessageService.send', () => {
   it('chiffre au repos puis renvoie le message en clair (round-trip)', async () => {
     const repos = makeRepos({ reciprocal: true });
     const moderation = { screenText: vi.fn(async () => true) } as never;
-    const svc = new MessageService(repos, moderation);
+    const svc = new MessageService(repos, moderation, push);
 
     const result = await svc.send('u1', 'u2', 'Coucou !');
 
@@ -84,7 +86,7 @@ describe('MessageService.listConversation', () => {
   it('refuse si les utilisateurs ne sont pas réciproquement liés', async () => {
     const repos = makeRepos({ reciprocal: false });
     const moderation = { screenText: vi.fn() } as never;
-    const svc = new MessageService(repos, moderation);
+    const svc = new MessageService(repos, moderation, push);
 
     await expect(svc.listConversation('u1', 'u2')).rejects.toThrow(AppError);
   });
@@ -92,7 +94,7 @@ describe('MessageService.listConversation', () => {
   it('déchiffre les messages de la conversation', async () => {
     const repos = makeRepos({ reciprocal: true });
     const moderation = { screenText: vi.fn() } as never;
-    const svc = new MessageService(repos, moderation);
+    const svc = new MessageService(repos, moderation, push);
 
     const page = await svc.listConversation('u1', 'u2');
 

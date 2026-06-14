@@ -10,7 +10,7 @@ import { useLinks } from '@/hooks/links';
 import { useConversation, useSendMessage, flattenMessagePages, type Message } from '@/hooks/messages';
 import { errorMessage } from '@/hooks/auth';
 import { cn } from '@/lib/cn';
-import { colors } from '@/theme/tokens';
+import { useAccentColors } from '@/stores/accent';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 function formatTime(iso: string): string {
@@ -26,6 +26,7 @@ export default function Conversation() {
   const conversation = useConversation(userId);
   const send = useSendMessage(userId);
   const [content, setContent] = useState('');
+  const accentColors = useAccentColors();
 
   const contactName = (links.data ?? []).find((l) => l.memberUserId === userId)?.contactName ?? '…';
   const messages: Message[] = flattenMessagePages(conversation.data?.pages);
@@ -41,7 +42,7 @@ export default function Conversation() {
 
   return (
     <View className="flex-1 bg-bg">
-      <GlowField glowColors={[colors.accent]} intensity={0.08} />
+      <GlowField glowColors={[accentColors.accent]} intensity={0.08} />
       <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
         <View className="flex-row items-center gap-3 px-[22px] pt-4 pb-3 border-b border-border">
           <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button" accessibilityLabel="Retour">
@@ -51,12 +52,12 @@ export default function Conversation() {
         </View>
 
         {conversation.isLoading && (
-          <ActivityIndicator color={colors.accent} className="mt-12" />
+          <ActivityIndicator color={accentColors.accent} className="mt-12" />
         )}
 
         <KeyboardAvoidingView
           className="flex-1"
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={90}
         >
           <FlatList
@@ -113,12 +114,12 @@ function Bubble({ message, mine }: { message: Message; mine: boolean }) {
           mine ? 'bg-accent' : 'bg-surface border border-border',
         )}
       >
-        <Text variant="body" className={mine ? '!text-[#16110B]' : undefined}>
+        <Text variant="body" className={mine ? '!text-accent-text' : undefined}>
           {message.content}
         </Text>
         <Text
           variant="caption"
-          className={mine ? '!text-[#16110B] opacity-60' : undefined}
+          className={mine ? '!text-accent-text opacity-60' : undefined}
           tone={mine ? undefined : 'faded'}
         >
           {formatTime(message.createdAt)}

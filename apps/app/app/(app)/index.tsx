@@ -13,7 +13,8 @@ import { useWeeklyPrompt, useAddJournalEntry } from '@/hooks/heartbeat';
 import { useLinks } from '@/hooks/links';
 import { useMyState } from '@/hooks/states';
 import { errorMessage } from '@/hooks/auth';
-import { STATES, colors } from '@/theme/tokens';
+import { STATES } from '@/theme/tokens';
+import { useAccentColors } from '@/stores/accent';
 import { cn } from '@/lib/cn';
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
   const links = useLinks();
   const myState = useMyState();
   const addEntry = useAddJournalEntry();
+  const accentColors = useAccentColors();
 
   const [answering, setAnswering] = useState(false);
   const [content, setContent] = useState('');
@@ -28,7 +30,7 @@ export default function Home() {
   const [justSaved, setJustSaved] = useState(false);
 
   // Couleur de la lueur courante (ou ambre par défaut) — pilote le glow.
-  const lueurColor = myState.data ? STATES[myState.data.state].color : colors.accent;
+  const lueurColor = myState.data ? STATES[myState.data.state].color : accentColors.accent;
 
   async function onSave() {
     if (!content.trim()) return;
@@ -66,7 +68,7 @@ export default function Home() {
         <View className="flex-row items-start gap-4">
           {/* petit orbe ambre, présence calme à côté de la question */}
           <View className="mt-1.5">
-            <Orb size={28} color={colors.accent} breathing />
+            <Orb size={28} color={accentColors.accent} breathing />
           </View>
           <View className="flex-1">
             <Text variant="editorial-title" italic={false}>
