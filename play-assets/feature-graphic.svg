@@ -1,0 +1,28 @@
+<svg width="1024" height="500" viewBox="0 0 1024 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="32%" cy="46%" r="85%">
+      <stop offset="0%" stop-color="#171C23"/>
+      <stop offset="100%" stop-color="#0A0D11"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#C9A584" stop-opacity="0.55"/>
+      <stop offset="68%" stop-color="#C9A584" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="core" cx="38%" cy="32%" r="62%">
+      <stop offset="0%" stop-color="#E4C9A8" stop-opacity="1"/>
+      <stop offset="46%" stop-color="#C9A584" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#C9A584" stop-opacity="0.35"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1024" height="500" fill="url(#bg)"/>
+
+  <!-- Orbe -->
+  <circle cx="220" cy="250" r="195" fill="url(#halo)"/>
+  <circle cx="220" cy="250" r="118" fill="url(#core)"/>
+  <circle cx="220" cy="250" r="117.5" fill="none" stroke="#E4C9A8" stroke-opacity="0.35" stroke-width="2"/>
+
+  <!-- Texte -->
+  <text x="430" y="245" font-family="Georgia, 'Times New Roman', serif" font-size="92" fill="#E8ECF1" font-weight="400">Aparté</text>
+  <text x="432" y="305" font-family="Helvetica, Arial, sans-serif" font-size="30" fill="#8893A2" letter-spacing="1">Le sanctuaire de tes liens essentiels</text>
+</svg>
