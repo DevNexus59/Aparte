@@ -14,8 +14,11 @@ import {
   Nunito_700Bold,
 } from '@expo-google-fonts/nunito';
 import { GeistMono_400Regular } from '@expo-google-fonts/geist-mono';
+import { vars } from 'nativewind';
 
 import { useAuth } from '@/stores/auth';
+import { useAccentTheme, useAccentColors } from '@/stores/accent';
+import { accentThemeVars } from '@/theme/accentThemes';
 import '../global.css';
 
 const queryClient = new QueryClient({
@@ -54,6 +57,11 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 export default function RootLayout() {
+  const { hydrated: accentHydrated, hydrate: hydrateAccent } = useAccentTheme();
+  const accentColors = useAccentColors();
+
+  useEffect(() => { if (!accentHydrated) hydrateAccent(); }, [accentHydrated, hydrateAccent]);
+
   const [fontsLoaded] = useFonts({
     Nunito_300Light,
     Nunito_400Regular,
@@ -72,7 +80,7 @@ export default function RootLayout() {
         <AuthGate>
           <StatusBar style="light" />
           {/* Déclare la langue de l'app pour VoiceOver/TalkBack (WCAG 3.1.1) */}
-          <View accessibilityLanguage="fr-FR" style={{ flex: 1 }}>
+          <View accessibilityLanguage="fr-FR" style={[{ flex: 1 }, vars(accentThemeVars(accentColors))]}>
             <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#0E1217' } }}>
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="onboarding" />

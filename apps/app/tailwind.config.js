@@ -18,8 +18,16 @@ module.exports = {
         // faded : #8893A2 (≈4.9:1 sur `elevated`, ≈5.5:1 sur `surface` — WCAG AA)
         text:       { DEFAULT: '#E8ECF1', muted: '#9BA4B0', faded: '#8893A2' },
 
-        // Accent — pêche orangée, avec une version "haute lumière"
-        accent:     { DEFAULT: '#F3BC8C', hi: '#FAD9B8', hover: '#F6C99D', pressed: '#E8A973' },
+        // Accent — personnalisable via le sélecteur de couleur du profil.
+        // Les valeurs viennent de variables CSS posées par accentThemeVars()
+        // (cf. src/theme/accentThemes.ts), avec le pêche d'origine en repli.
+        accent: {
+          DEFAULT: 'rgb(var(--color-accent, 243 188 140) / <alpha-value>)',
+          hi:      'rgb(var(--color-accent-hi, 250 217 184) / <alpha-value>)',
+          hover:   'rgb(var(--color-accent-hover, 246 201 157) / <alpha-value>)',
+          pressed: 'rgb(var(--color-accent-pressed, 232 169 115) / <alpha-value>)',
+          text:    'rgb(var(--color-accent-text, 43 27 14) / <alpha-value>)',
+        },
 
         // États émotionnels — pastels doux, jamais alertes
         state: {

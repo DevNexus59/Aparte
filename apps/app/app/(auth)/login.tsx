@@ -11,9 +11,10 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Orb } from '@/components/Orb';
 import { GlowField } from '@/components/GlowField';
 import { useLogin, errorMessage } from '@/hooks/auth';
-import { colors } from '@/theme/tokens';
+import { useAccentColors } from '@/stores/accent';
 
 export default function Login() {
+  const accentColors = useAccentColors();
   const router = useRouter();
   const login = useLogin();
   const [email, setEmail] = useState('');
@@ -28,7 +29,7 @@ export default function Login() {
 
   return (
     <View className="flex-1 bg-bg">
-      <GlowField glowColors={[colors.accent]} intensity={0.16} />
+      <GlowField glowColors={[accentColors.accent]} intensity={0.16} />
       <SafeAreaView className="flex-1">
         <KeyboardAvoidingView
           className="flex-1"
@@ -36,7 +37,7 @@ export default function Login() {
         >
           <ScrollView contentContainerStyle={{ paddingHorizontal: 26, paddingTop: 40, paddingBottom: 40 }}>
             <View className="items-center mt-6 mb-10">
-              <Orb size={70} color={colors.accent} breathing ring />
+              <Orb size={70} color={accentColors.accent} breathing ring />
             </View>
 
             <Eyebrow>Aparté</Eyebrow>

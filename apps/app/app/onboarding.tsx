@@ -8,7 +8,7 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Orb } from '@/components/Orb';
 import { GlowField } from '@/components/GlowField';
 import { storage } from '@/lib/storage';
-import { colors } from '@/theme/tokens';
+import { useAccentColors } from '@/stores/accent';
 import { cn } from '@/lib/cn';
 
 type Intent = 'maintain' | 'meet';
@@ -33,6 +33,7 @@ const OPTIONS: Array<{ value: Intent; title: string; desc: string }> = [
 ];
 
 export default function Onboarding() {
+  const accentColors = useAccentColors();
   const router = useRouter();
   const [intent, setIntent] = useState<Intent | null>(null);
 
@@ -44,12 +45,12 @@ export default function Onboarding() {
 
   return (
     <View className="flex-1 bg-bg">
-      <GlowField glowColors={[colors.accent]} intensity={0.18} />
+      <GlowField glowColors={[accentColors.accent]} intensity={0.18} />
       <SafeAreaView className="flex-1">
         <ScrollView contentContainerStyle={{ paddingHorizontal: 26, paddingTop: 32, paddingBottom: 40 }}>
           {/* Orbe d'accueil, comme un astre qui s'allume */}
           <View className="items-center mt-8 mb-10">
-            <Orb size={88} color={colors.accent} breathing ring />
+            <Orb size={88} color={accentColors.accent} breathing ring />
           </View>
 
           <Eyebrow>Aparté</Eyebrow>

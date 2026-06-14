@@ -7,17 +7,18 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { GlowField } from '@/components/GlowField';
 import { useMyStats } from '@/hooks/stats';
 import { membershipLabel } from '@/lib/stats';
-import { colors } from '@/theme/tokens';
+import { useAccentColors } from '@/stores/accent';
 
 // Stats non-anxiogènes (spec §10) : uniquement des compteurs personnels et
 // positifs, jamais de comparaison, de score ou de classement entre proches.
 export default function ProfileStats() {
+  const accentColors = useAccentColors();
   const router = useRouter();
   const stats = useMyStats();
 
   return (
     <View className="flex-1 bg-bg">
-      <GlowField glowColors={[colors.accent]} intensity={0.1} />
+      <GlowField glowColors={[accentColors.accent]} intensity={0.1} />
       <SafeAreaView className="flex-1" edges={['top', 'bottom']}>
         <View className="flex-row items-center gap-3 px-[22px] pt-4 pb-3 border-b border-border">
           <Pressable onPress={() => router.back()} hitSlop={10} accessibilityRole="button" accessibilityLabel="Retour">
@@ -27,7 +28,7 @@ export default function ProfileStats() {
         </View>
 
         {stats.isLoading && (
-          <ActivityIndicator color={colors.accent} className="mt-12" />
+          <ActivityIndicator color={accentColors.accent} className="mt-12" />
         )}
 
         {stats.data && (

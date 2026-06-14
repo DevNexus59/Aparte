@@ -15,6 +15,7 @@ import { useMyState, useCircleStates } from '@/hooks/states';
 import { errorMessage } from '@/hooks/auth';
 import { inviteMessage } from '@/lib/share';
 import { STATES, colors, EmotionalState } from '@/theme/tokens';
+import { useAccentColors } from '@/stores/accent';
 
 const MAX_LINKS = 3;
 
@@ -31,10 +32,11 @@ export default function CircleScreen() {
   const circleStates = useCircleStates();
   const [adding, setAdding] = useState(false);
   const [selectedLink, setSelectedLink] = useState<Link | null>(null);
+  const accentColors = useAccentColors();
 
   const activeLinks = (links.data ?? []).filter((l) => l.status === 'active');
   const remaining = MAX_LINKS - activeLinks.length;
-  const myColor = myState.data ? STATES[myState.data.state].color : colors.accent;
+  const myColor = myState.data ? STATES[myState.data.state].color : accentColors.accent;
 
   // Map state par lien (via le hook circleStates → liste d'états visibles).
   const stateByMember: Record<string, EmotionalState> = {};
@@ -114,7 +116,7 @@ export default function CircleScreen() {
 
       {/* État vide / formulaire d'ajout / actions */}
       {links.isLoading && (
-        <ActivityIndicator color={colors.accent} className="mt-4" />
+        <ActivityIndicator color={accentColors.accent} className="mt-4" />
       )}
 
       {!adding && activeLinks.length === 0 && !links.isLoading && (

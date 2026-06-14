@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/Text';
 import { IconBattement, IconCercle, IconJournal, IconMessages, IconToi } from '@/components/TabIcons';
 import { colors, hexA } from '@/theme/tokens';
+import { useAccentColors } from '@/stores/accent';
 import { usePushRegistration } from '@/hooks/push';
 import { useMessageSocket } from '@/hooks/messages';
 
@@ -31,6 +32,7 @@ interface BottomTabBarProps {
 
 function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const accentColors = useAccentColors();
 
   return (
     <View
@@ -48,7 +50,7 @@ function CustomTabBar({ state, navigation }: BottomTabBarProps) {
         const meta = TABS[route.name as TabKey];
         if (!meta) return null;
         const active = state.index === i;
-        const tint = active ? colors.accent : colors.faded;
+        const tint = active ? accentColors.accent : colors.faded;
 
         return (
           <Pressable
