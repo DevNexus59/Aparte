@@ -34,6 +34,11 @@ export class Link {
   @Column({ type: 'varchar', length: 30, nullable: true })
   contactPhone!: string | null;
 
+  // Conservé pour permettre le rattachement rétroactif de memberUserId si le
+  // contact s'inscrit après la création du lien (voir LinkRepository.backfillMemberUserId).
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  memberEmail!: string | null;
+
   @Column({ type: 'enum', enum: ['active', 'pending', 'removed'], default: 'active' })
   status!: LinkStatus;
 

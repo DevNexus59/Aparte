@@ -1,4 +1,4 @@
-import { DataSource, IsNull } from 'typeorm';
+import { DataSource, IsNull, LessThan } from 'typeorm';
 import { BaseRepository } from './BaseRepository';
 import { User } from '../entities/User';
 
@@ -44,6 +44,32 @@ export class UserRepository extends BaseRepository<User> {
 
   async resetFailedLogins(userId: string): Promise<void> {
     await this.repo.update(userId, { failedLoginAttempts: 0, lockedUntil: null });
+  }
+
+  async updatePassword(userId: string, passwordHash: string): Promise<void> {
+    await this.repo.update(userId, { passwordHash });
+  }
+
+  async markEmailVerified(userId: string): Promise<void> {
+    await this.repo.update(userId, { emailVerifiedAt: new Date() });
+  }
+
+  // Système de validation de compte : comptes créés depuis plus de 24h et
+  // jamais confirmés — suppression définitive (pas de soft-delete, le compte
+  // n'a jamais été "réellement" actif).
+  findUnverifiedOlderThan(date: Date): Promise<User[]> {
+    return this.repo.find({
+      where: { emailVerifiedAt: IsNull(), createdAt: LessThan(date) },
+    });
+  }
+
+  async hardDelete(userId: string): Promise<void> {
+    await this.dataSource.transaction(async (em) => {
+      await em.delete('push_devices', { userId });
+      await em.delete('messages', { senderId: userId });
+      await em.delete('messages', { recipientId: userId });
+      await em.delete('users', userId);
+    });
   }
 
   // RGPD : soft-delete via TypeORM, puis purge planifiée.

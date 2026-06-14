@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
+import { PasswordInput } from '@/components/PasswordInput';
 import { DateField } from '@/components/DateField';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Orb } from '@/components/Orb';
@@ -18,16 +19,21 @@ export default function Register() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [birthdate, setBirthdate] = useState('');
   const [phone, setPhone] = useState('');
 
-  const canSubmit = email && password.length >= 12 && displayName && birthdate;
+  const passwordsMatch = password === confirmPassword;
+  const canSubmit = email && password.length >= 12 && passwordsMatch && displayName && birthdate;
 
   async function submit() {
     if (!canSubmit) return;
     try {
-      await register.mutateAsync({ email, password, displayName, birthdate, phone: phone.trim() || undefined });
+      await register.mutateAsync({
+        email, password, confirmPassword, displayName, birthdate,
+        phone: phone.trim() || undefined,
+      });
     } catch { /* erreur affichée */ }
   }
 
@@ -64,10 +70,14 @@ export default function Register() {
                 autoCapitalize="none"
                 autoCorrect={false}
               />
-              <Input
+              <PasswordInput
                 label="Mot de passe (12 caractères minimum)"
                 value={password} onChangeText={setPassword}
-                secureTextEntry
+              />
+              <PasswordInput
+                label="Confirmer le mot de passe"
+                value={confirmPassword} onChangeText={setConfirmPassword}
+                error={confirmPassword && !passwordsMatch ? 'Les mots de passe ne correspondent pas' : undefined}
               />
               <DateField
                 label="Date de naissance"

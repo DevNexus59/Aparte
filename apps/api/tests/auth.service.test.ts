@@ -1,8 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthService } from '../src/services/AuthService';
 import { MemoryCache } from '../src/lib/cache';
-import { hashPassword } from '../src/lib/password';
+import { hashPassword, verifyPassword } from '../src/lib/password';
 import { User } from '../src/entities/User';
+
+// I5/HIBP : pas d'accès réseau dans les tests — on considère les mots de
+// passe de test comme non compromis.
+vi.mock('../src/lib/hibp', () => ({ isPasswordPwned: vi.fn(async () => false) }));
+
+// Emails : on vérifie juste que l'envoi est déclenché, sans appeler Resend.
+vi.mock('../src/lib/email', () => ({
+  sendVerificationEmail: vi.fn(async () => undefined),
+  sendPasswordResetEmail: vi.fn(async () => undefined),
+}));
 
 // Helpers pour fabriquer un container de repos minimal et mockable.
 function makeRepos(opts: {
@@ -16,8 +26,23 @@ function makeRepos(opts: {
       findById: vi.fn(async () => opts.user ?? null),
       registerFailedLogin: vi.fn(track('registerFailedLogin')),
       resetFailedLogins: vi.fn(track('resetFailedLogins')),
-      create: vi.fn(),
+      create: vi.fn(async (input: unknown) => Object.assign(new User(), { id: 'new-user', ...(input as object) })),
       softDelete: vi.fn(track('softDelete')),
+      updatePassword: vi.fn(track('updatePassword')),
+      markEmailVerified: vi.fn(track('markEmailVerified')),
+    },
+    links: {
+      backfillMemberUserId: vi.fn(track('backfillMemberUserId')),
+    },
+    passwordResets: {
+      create: vi.fn(track('passwordResets.create')),
+      findUsableByHash: vi.fn(async () => null),
+      markUsed: vi.fn(track('passwordResets.markUsed')),
+    },
+    emailVerifications: {
+      create: vi.fn(track('emailVerifications.create')),
+      findUsableByHash: vi.fn(async () => null),
+      markUsed: vi.fn(track('emailVerifications.markUsed')),
     },
     refreshTokens: {
       issue: vi.fn(async () => ({})),
@@ -121,5 +146,132 @@ describe('AuthService.deleteAccount', () => {
     expect(storage.delete).toHaveBeenCalledWith('photo-key.jpg');
     expect(repos.audit.record).toHaveBeenCalled();
     expect(repos.users.softDelete).toHaveBeenCalledWith('u1');
+  });
+});
+
+describe('AuthService.register', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  const validInput = {
+    email: 'new@user.com',
+    password: 'correct horse battery staple',
+    confirmPassword: 'correct horse battery staple',
+    displayName: 'Nouveau',
+    birthdate: '1990-01-01',
+  };
+
+  it('rejette les mineurs', async () => {
+    const { repos } = makeRepos({ user: null });
+    const svc = new AuthService(repos, new MemoryCache());
+
+    await expect(svc.register({ ...validInput, birthdate: '2015-01-01' })).rejects.toThrow();
+  });
+
+  it('crée le compte, rattache les liens en attente et envoie un email de confirmation', async () => {
+    const { repos } = makeRepos({ user: null });
+    const svc = new AuthService(repos, new MemoryCache());
+
+    const result = await svc.register(validInput);
+
+    expect(repos.users.create).toHaveBeenCalled();
+    // Bug du chat entre membres du même cercle : les liens créés avant
+    // l'inscription doivent être rattachés au nouveau compte.
+    expect(repos.links.backfillMemberUserId).toHaveBeenCalled();
+    expect(repos.emailVerifications.create).toHaveBeenCalled();
+    expect(result.user.email).toBe(validInput.email);
+  });
+});
+
+describe('AuthService - mot de passe oublié / changement', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  async function makeUser() {
+    const passwordHash = await hashPassword('correct horse battery staple');
+    return Object.assign(new User(), {
+      id: 'u1', email: 'a@b.c', passwordHash,
+      birthdate: '1990-01-01', status: 'active', role: 'user',
+      lockedUntil: null, failedLoginAttempts: 0,
+    });
+  }
+
+  it('requestPasswordReset : ne révèle rien si l\'email est inconnu', async () => {
+    const { repos } = makeRepos({ user: null });
+    const svc = new AuthService(repos, new MemoryCache());
+
+    await expect(svc.requestPasswordReset('ghost@nope.com')).resolves.toBeUndefined();
+    expect(repos.passwordResets.create).not.toHaveBeenCalled();
+  });
+
+  it('requestPasswordReset : crée un code pour un email connu', async () => {
+    const user = await makeUser();
+    const { repos } = makeRepos({ user });
+    const svc = new AuthService(repos, new MemoryCache());
+
+    await svc.requestPasswordReset('a@b.c');
+    expect(repos.passwordResets.create).toHaveBeenCalled();
+  });
+
+  it('confirmPasswordReset : rejette un code invalide', async () => {
+    const { repos } = makeRepos({ user: null });
+    const svc = new AuthService(repos, new MemoryCache());
+
+    await expect(svc.confirmPasswordReset('000000', 'a new strong password')).rejects.toThrow();
+  });
+
+  it('confirmPasswordReset : met à jour le mot de passe et révoque les sessions', async () => {
+    const { repos } = makeRepos({ user: null });
+    (repos as never as { passwordResets: { findUsableByHash: ReturnType<typeof vi.fn> } })
+      .passwordResets.findUsableByHash = vi.fn(async () => ({ id: 'pr1', userId: 'u1' }));
+    const svc = new AuthService(repos, new MemoryCache());
+
+    await svc.confirmPasswordReset('123456', 'a new strong password');
+
+    expect(repos.users.updatePassword).toHaveBeenCalledWith('u1', expect.any(String));
+    expect(repos.passwordResets.markUsed).toHaveBeenCalledWith('pr1');
+    expect(repos.refreshTokens.revokeAllForUser).toHaveBeenCalledWith('u1');
+  });
+
+  it('changePassword : rejette si l\'ancien mot de passe est incorrect', async () => {
+    const user = await makeUser();
+    const { repos } = makeRepos({ user });
+    const svc = new AuthService(repos, new MemoryCache());
+
+    await expect(svc.changePassword('u1', 'wrong', 'a new strong password')).rejects.toThrow();
+    expect(repos.users.updatePassword).not.toHaveBeenCalled();
+  });
+
+  it('changePassword : met à jour le mot de passe si l\'ancien est correct', async () => {
+    const user = await makeUser();
+    const { repos } = makeRepos({ user });
+    const svc = new AuthService(repos, new MemoryCache());
+
+    await svc.changePassword('u1', 'correct horse battery staple', 'a new strong password');
+
+    expect(repos.users.updatePassword).toHaveBeenCalledWith('u1', expect.any(String));
+    const [, newHash] = repos.users.updatePassword.mock.calls[0] as [string, string];
+    await expect(verifyPassword(newHash, 'a new strong password')).resolves.toBe(true);
+  });
+});
+
+describe('AuthService.verifyEmail', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('rejette un token invalide ou expiré', async () => {
+    const { repos } = makeRepos({ user: null });
+    const svc = new AuthService(repos, new MemoryCache());
+
+    await expect(svc.verifyEmail('bad-token')).rejects.toThrow();
+  });
+
+  it('marque le compte comme vérifié pour un token valide', async () => {
+    const { repos } = makeRepos({ user: null });
+    (repos as never as { emailVerifications: { findUsableByHash: ReturnType<typeof vi.fn> } })
+      .emailVerifications.findUsableByHash = vi.fn(async () => ({ id: 'ev1', userId: 'u1' }));
+    const svc = new AuthService(repos, new MemoryCache());
+
+    await svc.verifyEmail('good-token');
+
+    expect(repos.users.markEmailVerified).toHaveBeenCalledWith('u1');
+    expect(repos.emailVerifications.markUsed).toHaveBeenCalledWith('ev1');
   });
 });

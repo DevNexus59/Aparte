@@ -7,6 +7,7 @@ import { User } from '../entities/User';
 import { WeeklyPrompt } from '../entities/WeeklyPrompt';
 import { AuthRefreshToken } from '../entities/AuthRefreshToken';
 import { PasswordReset } from '../entities/PasswordReset';
+import { EmailVerification } from '../entities/EmailVerification';
 import { Link } from '../entities/Link';
 import { JournalEntry } from '../entities/JournalEntry';
 import { Nudge } from '../entities/Nudge';
@@ -35,7 +36,7 @@ export const AppDataSource = new DataSource({
   logging: process.env.NODE_ENV !== 'production' ? ['error', 'warn'] : ['error'],
   namingStrategy: new SnakeNamingStrategy(), // camelCase TS -> snake_case SQL
   entities: [
-    User, WeeklyPrompt, AuthRefreshToken, PasswordReset,
+    User, WeeklyPrompt, AuthRefreshToken, PasswordReset, EmailVerification,
     Link, JournalEntry, Nudge, EmotionalState,
     Report, ModerationAction, ModerationFlag, AuditLog,
     PushDevice, CronLock, Message,

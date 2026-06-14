@@ -69,6 +69,7 @@ export class LinkRepository extends BaseRepository<Link> {
         memberUserId,
         contactName: input.contactName,
         contactPhone: input.contactPhone ?? null,
+        memberEmail: input.memberEmail ?? null,
         status: 'active',
       });
       const saved = await em.save(link);
@@ -139,6 +140,25 @@ export class LinkRepository extends BaseRepository<Link> {
     return this.repo.findOne({
       where: { id: linkId, ownerUserId, status: 'active' as never },
     });
+  }
+
+  // Rattachement rétroactif : quand un nouvel utilisateur s'inscrit, certains
+  // liens actifs créés avant son inscription pointent vers lui via
+  // contactPhone/memberEmail mais ont memberUserId = null (jamais résolu à la
+  // création). Sans ce rattachement, areReciprocallyLinked ne peut jamais
+  // devenir vraie pour ces liens — c'était la cause du bug "le chat ne
+  // fonctionne pas entre deux membres pourtant inscrits".
+  async backfillMemberUserId(user: User): Promise<void> {
+    if (user.phone) {
+      await this.repo.update(
+        { contactPhone: user.phone, memberUserId: IsNull(), status: 'active' as never },
+        { memberUserId: user.id },
+      );
+    }
+    await this.repo.update(
+      { memberEmail: user.email, memberUserId: IsNull(), status: 'active' as never },
+      { memberUserId: user.id },
+    );
   }
 
   // B6 : deux users sont réciproquement liés si chacun a l'autre dans son cercle actif.

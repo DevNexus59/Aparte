@@ -52,6 +52,11 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   lockedUntil!: Date | null;
 
+  // Système de validation de compte : null = email non vérifié. Un compte
+  // non vérifié 24h après sa création est supprimé par le cron de purge.
+  @Column({ type: 'timestamp', nullable: true })
+  emailVerifiedAt!: Date | null;
+
   @CreateDateColumn()
   createdAt!: Date;
 
