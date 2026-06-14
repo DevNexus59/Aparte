@@ -7,6 +7,7 @@ import { initServices, services } from './services';
 import { startCronJobs } from './cron';
 import { createApp } from './app';
 import { initRealtime } from './realtime';
+import { ensureGooglePlayReviewAccount } from './lib/seedReviewAccount';
 
 const port = Number(process.env.PORT ?? 4000);
 
@@ -16,6 +17,8 @@ async function main() {
 
   const repos = initRepositories();
   initServices(repos, AppDataSource);
+
+  await ensureGooglePlayReviewAccount(repos);
 
   startCronJobs(repos, services);
 
