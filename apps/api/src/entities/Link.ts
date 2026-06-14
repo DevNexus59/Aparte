@@ -42,6 +42,11 @@ export class Link {
   @Column({ type: 'enum', enum: ['active', 'pending', 'removed'], default: 'active' })
   status!: LinkStatus;
 
+  // Posée quand `memberUserId` a refusé l'invitation à rejoindre ce cercle :
+  // l'invitation n'est alors plus proposée (mais le lien d'`ownerUserId` reste actif).
+  @Column({ type: 'timestamp', nullable: true })
+  dismissedAt!: Date | null;
+
   @CreateDateColumn()
   createdAt!: Date;
 

@@ -52,6 +52,14 @@ export class JournalEntryRepository extends BaseRepository<JournalEntry> {
     return { counts, perLink };
   }
 
+  // RGPD : export — toutes les entrées de journal de l'utilisateur.
+  findAllForUser(userId: string): Promise<JournalEntry[]> {
+    return this.repo.find({
+      where: { userId, deletedAt: IsNull() } as never,
+      order: { createdAt: 'ASC' },
+    });
+  }
+
   // M3 : cursor-based pagination — stable même avec inserts/deletes concurrents.
   async listForUser(userId: string, opts: CursorPageOptions = {}): Promise<CursorPage<JournalEntry>> {
     const limit = normalizeLimit(opts.limit);

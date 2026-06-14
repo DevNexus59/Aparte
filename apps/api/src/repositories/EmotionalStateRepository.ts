@@ -32,6 +32,11 @@ export class EmotionalStateRepository extends BaseRepository<EmotionalState> {
     return this.repo.save(state);
   }
 
+  // RGPD : export — historique complet des états émotionnels de l'utilisateur.
+  findAllForUser(userId: string): Promise<EmotionalState[]> {
+    return this.repo.find({ where: { userId }, order: { setAt: 'ASC' } });
+  }
+
   // Mon état actif le plus récent.
   getMyCurrent(userId: string): Promise<EmotionalState | null> {
     return this.repo.findOne({

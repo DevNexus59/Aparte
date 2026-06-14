@@ -8,6 +8,7 @@ interface CreateUserInput {
   displayName: string;
   birthdate: string;
   phone?: string;
+  termsAcceptedAt?: Date;
 }
 
 export class UserRepository extends BaseRepository<User> {

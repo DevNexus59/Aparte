@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Pressable, Linking } from 'react-native';
+import { View, Pressable, Linking, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import { Text } from '@/components/Text';
@@ -12,7 +12,8 @@ import { DeleteAccountSheet } from '@/components/DeleteAccountSheet';
 import { ChangePasswordSheet } from '@/components/ChangePasswordSheet';
 import { useAuth } from '@/stores/auth';
 import { unregisterCurrentDevice } from '@/hooks/push';
-import { API_URL } from '@/lib/api';
+import { api, API_URL } from '@/lib/api';
+import { errorMessage } from '@/hooks/auth';
 import { useAccentTheme, useAccentColors } from '@/stores/accent';
 import { ACCENT_THEMES, ACCENT_THEME_ORDER } from '@/theme/accentThemes';
 import { colors } from '@/theme/tokens';
@@ -26,10 +27,28 @@ export default function Profile() {
   const clear = useAuth((s) => s.clear);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   async function logout() {
     await unregisterCurrentDevice();
     await clear();
+  }
+
+  async function exportData() {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const data = await api<unknown>('/auth/export');
+      await Share.share({
+        title: 'Mes données Aparté',
+        message: JSON.stringify(data, null, 2),
+      });
+    } catch (err) {
+      setExportError(errorMessage(err));
+    } finally {
+      setExporting(false);
+    }
   }
 
   return (
@@ -100,12 +119,29 @@ export default function Profile() {
           </Card>
         </Pressable>
 
-        <Pressable onPress={() => Linking.openURL(`${API_URL}/legal/suppression-compte`)} hitSlop={10} accessibilityRole="button">
+        <Pressable onPress={() => Linking.openURL(`${API_URL}/legal/cgu`)} hitSlop={10} accessibilityRole="button">
+          <Card className="flex-row items-center justify-between">
+            <Text variant="body">Conditions générales d'utilisation</Text>
+            <Text variant="body" tone="faded">→</Text>
+          </Card>
+        </Pressable>
+
+        <Pressable onPress={() => Linking.openURL(`${API_URL}/legal/mentions-legales`)} hitSlop={10} accessibilityRole="button">
           <Card className="flex-row items-center justify-between">
             <Text variant="body">Mentions légales</Text>
             <Text variant="body" tone="faded">→</Text>
           </Card>
         </Pressable>
+
+        <Pressable onPress={exportData} disabled={exporting} hitSlop={10} accessibilityRole="button">
+          <Card className="flex-row items-center justify-between">
+            <Text variant="body">{exporting ? 'Export en cours…' : 'Exporter mes données'}</Text>
+            <Text variant="body" tone="faded">→</Text>
+          </Card>
+        </Pressable>
+        {exportError && (
+          <Text variant="caption" className="text-state-want-to-see">{exportError}</Text>
+        )}
       </View>
 
       <View className="mt-12 items-center gap-6">

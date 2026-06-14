@@ -1,5 +1,6 @@
 import { Repositories } from '../repositories';
 import { ModerationService } from './ModerationService';
+import { PushService } from './PushService';
 import { encryptText, decryptText } from '../lib/encryption';
 import { CursorPage, CursorPageOptions } from '../lib/pagination';
 import { AppError } from '../middlewares/errorHandler';
@@ -22,6 +23,7 @@ export class MessageService {
   constructor(
     private readonly repos: Repositories,
     private readonly moderation: ModerationService,
+    private readonly push: PushService,
   ) {}
 
   async send(senderId: string, recipientId: string, content: string): Promise<DecryptedMessage> {
@@ -51,6 +53,14 @@ export class MessageService {
     };
 
     broadcastNewMessage(message);
+
+    // Politique « silence numérique » : pas de contenu ni d'expéditeur dans
+    // le push, juste un signal qu'un message attend dans l'app.
+    this.push.send({
+      userIds: [recipientId],
+      body: 'Tu as reçu un nouveau message.',
+      data: { type: 'new_message', senderId },
+    }).catch((e) => console.error('[push] new message notify failed', e));
 
     return message;
   }

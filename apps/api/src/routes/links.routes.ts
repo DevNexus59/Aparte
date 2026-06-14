@@ -24,6 +24,31 @@ linksRouter.get('/', asyncHandler(async (req: AuthedRequest, res) => {
   res.json({ links });
 }));
 
+// Invitations : quelqu'un m'a ajouté à son cercle, je peux accepter (réciproque)
+// ou refuser. Déclaré avant les routes `/:id` ci-dessous.
+linksRouter.get('/invitations', asyncHandler(async (req: AuthedRequest, res) => {
+  const invitations = await services.links.listInvitations(currentUser(req).id);
+  res.json({
+    invitations: invitations.map((l) => ({
+      id: l.id,
+      ownerUserId: l.ownerUserId,
+      ownerDisplayName: l.owner.displayName,
+      ownerPhotoUrl: l.owner.photoUrl,
+      createdAt: l.createdAt,
+    })),
+  });
+}));
+
+linksRouter.post('/invitations/:id/accept', asyncHandler(async (req: AuthedRequest, res) => {
+  const link = await services.links.acceptInvitation(req.params.id, currentUser(req).id);
+  res.status(201).json({ link });
+}));
+
+linksRouter.post('/invitations/:id/decline', asyncHandler(async (req: AuthedRequest, res) => {
+  await services.links.dismissInvitation(req.params.id, currentUser(req).id);
+  res.status(204).send();
+}));
+
 linksRouter.post('/', asyncHandler(async (req: AuthedRequest, res) => {
   const input = parse(createSchema, req.body);
   const link = await services.links.create({ ownerUserId: currentUser(req).id, ...input });

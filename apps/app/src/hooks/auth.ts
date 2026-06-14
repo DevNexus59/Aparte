@@ -15,6 +15,7 @@ interface RegisterInput {
   displayName: string;
   birthdate: string;
   phone?: string;
+  acceptTerms: boolean;
 }
 
 export function useRegister() {

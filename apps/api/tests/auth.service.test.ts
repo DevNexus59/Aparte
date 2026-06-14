@@ -158,6 +158,7 @@ describe('AuthService.register', () => {
     confirmPassword: 'correct horse battery staple',
     displayName: 'Nouveau',
     birthdate: '1990-01-01',
+    acceptTerms: true,
   };
 
   it('rejette les mineurs', async () => {

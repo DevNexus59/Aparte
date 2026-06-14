@@ -5,6 +5,100 @@ export const legalRouter = Router();
 
 const CONTACT_EMAIL = 'devnexus59@gmail.com';
 
+legalRouter.get('/mentions-legales', (_req, res) => {
+  res.type('html').send(page('Mentions légales', `
+<h1>Mentions légales — Aparté</h1>
+
+<h2>Éditeur</h2>
+<p>L'application Aparté est éditée à titre individuel par :</p>
+<ul>
+  <li>Pierre Fourdin</li>
+  <li>Contact : <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></li>
+</ul>
+
+<h2>Hébergement</h2>
+<p>L'application (back-end et base de données) est hébergée sur une
+infrastructure privée gérée par l'éditeur.</p>
+
+<h2>Propriété intellectuelle</h2>
+<p>L'application Aparté, son code, son design et les éléments graphiques
+qui la composent sont la propriété de l'éditeur, sauf mention contraire.
+Toute reproduction non autorisée est interdite.</p>
+
+<h2>Données personnelles</h2>
+<p>Le traitement des données personnelles est décrit dans la
+<a href="/legal/confidentialite">politique de confidentialité</a>.</p>
+
+<h2>Contact</h2>
+<p>Pour toute question relative à l'application, écrivez à
+<a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
+`));
+});
+
+legalRouter.get('/cgu', (_req, res) => {
+  res.type('html').send(page("Conditions générales d'utilisation", `
+<h1>Conditions générales d'utilisation — Aparté</h1>
+<p>Dernière mise à jour : 14 juin 2026.</p>
+
+<p>L'utilisation de l'application Aparté implique l'acceptation pleine et
+entière des présentes conditions générales d'utilisation (« CGU »).</p>
+
+<h2>1. Objet</h2>
+<p>Aparté est une application permettant de rester en contact avec son
+cercle de proches : partage d'état émotionnel, journal personnel et
+messagerie privée entre membres d'un même cercle.</p>
+
+<h2>2. Accès au service</h2>
+<p>L'inscription est réservée aux personnes majeures (18 ans et plus). La
+création d'un compte nécessite une adresse email valide, confirmée par un
+lien de vérification.</p>
+
+<h2>3. Compte utilisateur</h2>
+<p>Vous êtes responsable de la confidentialité de vos identifiants. Toute
+activité réalisée depuis votre compte est présumée effectuée par vous.
+Signalez immédiatement toute utilisation non autorisée à
+<a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
+
+<h2>4. Comportement et contenu</h2>
+<p>Vous vous engagez à ne publier ou transmettre, via le journal ou la
+messagerie, aucun contenu illicite, injurieux, diffamatoire ou portant
+atteinte aux droits d'un tiers. L'éditeur peut suspendre ou supprimer un
+compte en cas de manquement grave à ces règles.</p>
+
+<h2>5. Données personnelles</h2>
+<p>L'utilisation de l'application implique le traitement de données
+personnelles décrit dans la <a href="/legal/confidentialite">politique de
+confidentialité</a>, qui constitue votre consentement éclairé conformément
+au RGPD et à la loi Informatique et Libertés.</p>
+
+<h2>6. Disponibilité du service</h2>
+<p>L'éditeur s'efforce d'assurer la disponibilité du service mais ne peut
+garantir un fonctionnement ininterrompu. Des interruptions peuvent survenir
+pour maintenance ou pour des raisons indépendantes de sa volonté.</p>
+
+<h2>7. Responsabilité</h2>
+<p>Aparté est un outil d'aide au maintien du lien social et ne se substitue
+en aucun cas à un avis médical, psychologique ou d'urgence. En cas de
+détresse, contactez les services d'urgence ou une ligne d'écoute dédiée.</p>
+
+<h2>8. Résiliation</h2>
+<p>Vous pouvez supprimer votre compte à tout moment depuis l'application
+(voir <a href="/legal/suppression-compte">suppression de compte</a>).
+L'éditeur peut résilier l'accès au service en cas de violation des
+présentes CGU.</p>
+
+<h2>9. Droit applicable</h2>
+<p>Les présentes CGU sont soumises au droit français. Tout litige relève de
+la compétence des juridictions françaises, sous réserve des règles
+impératives de protection du consommateur.</p>
+
+<h2>10. Modifications</h2>
+<p>Les présentes CGU peuvent être modifiées ; la date de dernière
+modification est indiquée en haut de cette page. En cas de modification
+substantielle, un nouveau consentement pourra être demandé.</p>
+`));
+});
+
 legalRouter.get('/confidentialite', (_req, res) => {
   res.type('html').send(page('Politique de confidentialité', `
 <h1>Politique de confidentialité — Aparté</h1>

@@ -57,6 +57,11 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   emailVerifiedAt!: Date | null;
 
+  // RGPD : date d'acceptation des CGU / consentement éclairé au traitement
+  // des données décrit dans la politique de confidentialité.
+  @Column({ type: 'timestamp', nullable: true })
+  termsAcceptedAt!: Date | null;
+
   @CreateDateColumn()
   createdAt!: Date;
 

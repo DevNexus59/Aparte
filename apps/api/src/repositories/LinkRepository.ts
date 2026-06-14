@@ -161,6 +161,56 @@ export class LinkRepository extends BaseRepository<Link> {
     );
   }
 
+  // Invitations en attente : liens actifs où je suis le membre ajouté, pas encore
+  // réciproqués (je n'ai pas encore cette personne dans mon propre cercle) et
+  // pas déjà refusés.
+  async listInvitations(userId: string): Promise<Link[]> {
+    return this.repo
+      .createQueryBuilder('l')
+      .innerJoinAndSelect('l.owner', 'owner')
+      .where('l.member_user_id = :userId', { userId })
+      .andWhere('l.status = :status', { status: 'active' })
+      .andWhere('l.dismissed_at IS NULL')
+      .andWhere(
+        `NOT EXISTS (
+          SELECT 1 FROM links lb
+          WHERE lb.owner_user_id = :userId
+            AND lb.member_user_id = l.owner_user_id
+            AND lb.status = :status
+        )`,
+        { userId, status: 'active' },
+      )
+      .orderBy('l.created_at', 'DESC')
+      .getMany();
+  }
+
+  // J'accepte l'invitation : je crée le lien réciproque dans mon cercle.
+  // Réutilise createSafely pour la limite (3 liens actifs) et l'anti-doublon.
+  async acceptInvitation(linkId: string, userId: string): Promise<Link> {
+    const invitation = await this.repo.findOne({
+      where: { id: linkId, memberUserId: userId, status: 'active' as never },
+      relations: { owner: true },
+    });
+    if (!invitation || !invitation.owner) {
+      throw new AppError(404, 'Invitation introuvable');
+    }
+    return this.createSafely({
+      ownerUserId: userId,
+      contactName: invitation.owner.displayName,
+      memberEmail: invitation.owner.email,
+    });
+  }
+
+  // Je refuse l'invitation : elle ne sera plus proposée (mais le cercle de
+  // celui qui m'a ajouté reste inchangé).
+  async dismissInvitation(linkId: string, userId: string): Promise<void> {
+    const result = await this.repo.update(
+      { id: linkId, memberUserId: userId, status: 'active' as never },
+      { dismissedAt: new Date() },
+    );
+    if (result.affected === 0) throw new AppError(404, 'Invitation introuvable');
+  }
+
   // B6 : deux users sont réciproquement liés si chacun a l'autre dans son cercle actif.
   async areReciprocallyLinked(a: string, b: string): Promise<boolean> {
     const count = await this.repo

@@ -42,3 +42,39 @@ export function useRemoveLink() {
     onSuccess: () => qc.invalidateQueries({ queryKey: linksKey }),
   });
 }
+
+export interface Invitation {
+  id: string;
+  ownerUserId: string;
+  ownerDisplayName: string;
+  ownerPhotoUrl: string | null;
+  createdAt: string;
+}
+
+const invitationsKey = ['links', 'invitations'] as const;
+
+export function useInvitations() {
+  return useQuery({
+    queryKey: invitationsKey,
+    queryFn: () => api<{ invitations: Invitation[] }>('/links/invitations').then((d) => d.invitations),
+  });
+}
+
+export function useAcceptInvitation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api<{ link: Link }>(`/links/invitations/${id}/accept`, { method: 'POST' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: invitationsKey });
+      qc.invalidateQueries({ queryKey: linksKey });
+    },
+  });
+}
+
+export function useDeclineInvitation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api<void>(`/links/invitations/${id}/decline`, { method: 'POST' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: invitationsKey }),
+  });
+}
