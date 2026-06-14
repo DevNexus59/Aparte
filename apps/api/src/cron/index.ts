@@ -104,8 +104,30 @@ export function startCronJobs(repos: Repositories, services: Services): void {
     }
   };
 
+  // Système de validation de compte : tout compte créé depuis plus de 24h et
+  // jamais confirmé est de facto supprimé. Vérification horaire pour rester
+  // proche de la limite de 24h.
+  const runHourly = async () => {
+    if (!(await tryAcquireLock('hourly', 55 * 60_000))) return;
+    try {
+      const before = new Date(Date.now() - DAY);
+      const unverified = await repos.users.findUnverifiedOlderThan(before);
+      for (const user of unverified) {
+        await repos.users.hardDelete(user.id);
+      }
+      if (unverified.length > 0) {
+        console.log(`[cron] purge ${unverified.length} comptes non confirmés (>24h)`);
+      }
+    } catch (e) {
+      console.error('[cron] hourly failed:', e);
+    }
+  };
+
   setTimeout(runDaily, 60_000).unref();
   setInterval(runDaily, DAY).unref();
+
+  setTimeout(runHourly, 30_000).unref();
+  setInterval(runHourly, HOUR).unref();
 
   setTimeout(runWeeklyPush, 2 * 60_000).unref();
   setInterval(runWeeklyPush, HOUR).unref();

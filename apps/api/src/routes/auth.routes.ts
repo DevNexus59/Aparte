@@ -4,6 +4,7 @@ import { services } from '../services';
 import { asyncHandler, AppError } from "../middlewares/errorHandler";
 import { parseBody as parse } from "../lib/validation";
 import { hashToken } from '../lib/jwt';
+import { page } from '../lib/htmlPage';
 import { requireAuth, currentUser, AuthedRequest } from '../middlewares/auth';
 
 export const authRouter = Router();
@@ -11,9 +12,13 @@ export const authRouter = Router();
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(12),                  // I5 : longueur > complexité
+  confirmPassword: z.string().min(12),
   displayName: z.string().min(1).max(80),
   birthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   phone: z.string().max(30).optional(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Les mots de passe ne correspondent pas',
+  path: ['confirmPassword'],
 });
 
 const loginSchema = z.object({
@@ -24,6 +29,20 @@ const loginSchema = z.object({
 const refreshSchema = z.object({ refreshToken: z.string().min(10) });
 
 const deleteAccountSchema = z.object({ password: z.string().min(1) });
+
+const forgotPasswordSchema = z.object({ email: z.string().email() });
+
+const resetPasswordSchema = z.object({
+  code: z.string().min(6).max(6),
+  newPassword: z.string().min(12),
+});
+
+const changePasswordSchema = z.object({
+  oldPassword: z.string().min(1),
+  newPassword: z.string().min(12),
+});
+
+const verifyEmailSchema = z.object({ token: z.string().min(1) });
 
 function ctxOf(req: { ip?: string; get(h: string): string | undefined }) {
   return { ip: req.ip, userAgent: req.get('user-agent') ?? undefined };
@@ -65,4 +84,51 @@ authRouter.delete('/me', requireAuth, asyncHandler(async (req: AuthedRequest, re
   const { password } = parse(deleteAccountSchema, req.body);
   await services.auth.deleteAccount(currentUser(req).id, password, ctxOf(req), req.accessToken);
   res.status(204).send();
+}));
+
+// Mot de passe oublié : envoie un code de réinitialisation par email.
+// Réponse toujours 204, même si l'email n'existe pas (anti-énumération).
+authRouter.post('/forgot-password', asyncHandler(async (req, res) => {
+  const { email } = parse(forgotPasswordSchema, req.body);
+  await services.auth.requestPasswordReset(email, ctxOf(req));
+  res.status(204).send();
+}));
+
+// Confirmation de la réinitialisation via le code reçu par email.
+authRouter.post('/reset-password', asyncHandler(async (req, res) => {
+  const { code, newPassword } = parse(resetPasswordSchema, req.body);
+  await services.auth.confirmPasswordReset(code, newPassword);
+  res.status(204).send();
+}));
+
+// Changement de mot de passe par un utilisateur connecté — vérifie l'ancien mot de passe.
+authRouter.post('/change-password', requireAuth, asyncHandler(async (req: AuthedRequest, res) => {
+  const { oldPassword, newPassword } = parse(changePasswordSchema, req.body);
+  await services.auth.changePassword(currentUser(req).id, oldPassword, newPassword, ctxOf(req));
+  res.status(204).send();
+}));
+
+// Renvoi de l'email de confirmation de compte.
+authRouter.post('/resend-verification', requireAuth, asyncHandler(async (req: AuthedRequest, res) => {
+  await services.auth.resendVerificationEmail(currentUser(req).id);
+  res.status(204).send();
+}));
+
+// Lien cliqué depuis l'email de confirmation — page HTML de résultat.
+authRouter.get('/verify-email', asyncHandler(async (req, res) => {
+  const { token } = parse(verifyEmailSchema, req.query);
+  try {
+    await services.auth.verifyEmail(token);
+    res.type('html').send(page('Compte confirmé', `
+      <h1>Ton compte est confirmé !</h1>
+      <p>Tu peux retourner sur l'application Aparté et continuer à l'utiliser.</p>
+    `));
+  } catch (err) {
+    const message = err instanceof AppError ? err.message : 'Lien invalide ou expiré';
+    res.type('html').send(page('Lien invalide', `
+      <h1>Lien invalide ou expiré</h1>
+      <p>${message}</p>
+      <p>Reconnecte-toi à l'application pour demander un nouveau lien de confirmation.</p>
+    `));
+  }
 }));

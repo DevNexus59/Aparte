@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import { Repositories } from '../repositories';
 import { Cache } from '../lib/cache';
 import type { FileStorage } from '../lib/storage';
@@ -7,8 +8,12 @@ import {
   TokenPayload, REFRESH_TTL_MS, ACCESS_TTL_MS,
 } from '../lib/jwt';
 import { isPasswordPwned } from '../lib/hibp';
+import { sendVerificationEmail, sendPasswordResetEmail } from '../lib/email';
 import { AppError } from '../middlewares/errorHandler';
 import { User } from '../entities/User';
+
+const EMAIL_VERIFICATION_TTL_MS = 24 * 60 * 60 * 1000; // 24h
+const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000; // 1h
 
 // B1 : hash de référence calculé une fois — verifyPassword prend le même temps
 // même quand l'utilisateur n'existe pas. Évite l'énumération par timing.
@@ -70,7 +75,95 @@ export class AuthService {
       userId: user.id, action: 'user.register', entity: 'user', entityId: user.id, ip: ctx.ip,
     });
 
+    // Rattache ce nouveau compte aux liens créés avant son inscription
+    // (cercle d'un autre membre qui l'a ajouté par téléphone/email).
+    await this.repos.links.backfillMemberUserId(user);
+
+    // Système de validation de compte : email de confirmation, compte
+    // supprimé par le cron de purge si non confirmé après 24h.
+    await this.sendVerificationEmail(user);
+
     return this.issueAuthResult(user, ctx);
+  }
+
+  // I : demande de réinitialisation de mot de passe. Réponse identique que
+  // l'email existe ou non, pour éviter l'énumération de comptes.
+  async requestPasswordReset(email: string, _ctx: AuthContext = {}): Promise<void> {
+    const user = await this.repos.users.findActiveByEmail(email);
+    if (!user) return;
+
+    const code = crypto.randomInt(0, 1_000_000).toString().padStart(6, '0');
+    await this.repos.passwordResets.create(
+      user.id, hashToken(code), new Date(Date.now() + PASSWORD_RESET_TTL_MS),
+    );
+    await sendPasswordResetEmail(user.email, code);
+  }
+
+  async confirmPasswordReset(code: string, newPassword: string): Promise<void> {
+    if (await isPasswordPwned(newPassword)) {
+      throw new AppError(400, 'Ce mot de passe est connu comme compromis. Choisis-en un autre.');
+    }
+
+    const entry = await this.repos.passwordResets.findUsableByHash(hashToken(code));
+    if (!entry) throw new AppError(400, 'Code invalide ou expiré');
+
+    const passwordHash = await hashPassword(newPassword);
+    await this.repos.users.updatePassword(entry.userId, passwordHash);
+    await this.repos.passwordResets.markUsed(entry.id);
+    await this.repos.refreshTokens.revokeAllForUser(entry.userId);
+
+    await this.repos.audit.record({
+      userId: entry.userId, action: 'user.password.reset', entity: 'user', entityId: entry.userId,
+    });
+  }
+
+  // Changement de mot de passe par un utilisateur connecté — exige l'ancien
+  // mot de passe.
+  async changePassword(userId: string, oldPassword: string, newPassword: string, ctx: AuthContext = {}): Promise<void> {
+    const user = await this.repos.users.findById(userId);
+    if (!user) throw new AppError(404, 'Utilisateur introuvable');
+
+    const passwordOk = await verifyPassword(user.passwordHash, oldPassword);
+    if (!passwordOk) throw new AppError(401, 'Mot de passe actuel incorrect');
+
+    if (await isPasswordPwned(newPassword)) {
+      throw new AppError(400, 'Ce mot de passe est connu comme compromis. Choisis-en un autre.');
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+    await this.repos.users.updatePassword(userId, passwordHash);
+
+    await this.repos.audit.record({
+      userId, action: 'user.password.change', entity: 'user', entityId: userId, ip: ctx.ip,
+    });
+  }
+
+  // Système de validation de compte : envoie un email avec un lien de confirmation.
+  async sendVerificationEmail(user: User): Promise<void> {
+    const token = crypto.randomBytes(32).toString('hex');
+    await this.repos.emailVerifications.create(
+      user.id, hashToken(token), new Date(Date.now() + EMAIL_VERIFICATION_TTL_MS),
+    );
+    await sendVerificationEmail(user.email, token);
+  }
+
+  async resendVerificationEmail(userId: string): Promise<void> {
+    const user = await this.repos.users.findById(userId);
+    if (!user) throw new AppError(404, 'Utilisateur introuvable');
+    if (user.emailVerifiedAt) throw new AppError(409, 'Compte déjà confirmé');
+    await this.sendVerificationEmail(user);
+  }
+
+  async verifyEmail(token: string): Promise<void> {
+    const entry = await this.repos.emailVerifications.findUsableByHash(hashToken(token));
+    if (!entry) throw new AppError(400, 'Lien de confirmation invalide ou expiré');
+
+    await this.repos.users.markEmailVerified(entry.userId);
+    await this.repos.emailVerifications.markUsed(entry.id);
+
+    await this.repos.audit.record({
+      userId: entry.userId, action: 'user.email.verified', entity: 'user', entityId: entry.userId,
+    });
   }
 
   async login(email: string, password: string, ctx: AuthContext = {}): Promise<AuthResult> {

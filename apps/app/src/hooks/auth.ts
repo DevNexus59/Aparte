@@ -11,6 +11,7 @@ interface AuthResponse {
 interface RegisterInput {
   email: string;
   password: string;
+  confirmPassword: string;
   displayName: string;
   birthdate: string;
   phone?: string;
@@ -35,6 +36,37 @@ export function useLogin() {
     onSuccess: async (data) => {
       await setTokens(data.accessToken, data.refreshToken);
     },
+  });
+}
+
+// Mot de passe oublié : envoi d'un code de réinitialisation par email.
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (email: string) =>
+      api<void>('/auth/forgot-password', { method: 'POST', body: { email }, auth: false }),
+  });
+}
+
+// Confirmation de la réinitialisation via le code reçu par email.
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: (input: { code: string; newPassword: string }) =>
+      api<void>('/auth/reset-password', { method: 'POST', body: input, auth: false }),
+  });
+}
+
+// Changement de mot de passe, utilisateur connecté — vérifie l'ancien mot de passe.
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (input: { oldPassword: string; newPassword: string }) =>
+      api<void>('/auth/change-password', { method: 'POST', body: input }),
+  });
+}
+
+// Renvoi de l'email de confirmation de compte.
+export function useResendVerification() {
+  return useMutation({
+    mutationFn: () => api<void>('/auth/resend-verification', { method: 'POST' }),
   });
 }
 

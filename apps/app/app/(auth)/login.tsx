@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, ScrollView, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/Text';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
+import { PasswordInput } from '@/components/PasswordInput';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Orb } from '@/components/Orb';
 import { GlowField } from '@/components/GlowField';
@@ -50,11 +51,13 @@ export default function Login() {
                 autoCapitalize="none"
                 autoCorrect={false}
               />
-              <Input
+              <PasswordInput
                 label="Mot de passe"
                 value={password} onChangeText={setPassword}
-                secureTextEntry
               />
+              <Pressable onPress={() => router.push('/(auth)/forgot-password')} hitSlop={10} accessibilityRole="button">
+                <Text variant="caption" tone="muted">Mot de passe oublié ?</Text>
+              </Pressable>
             </View>
 
             {login.isError && (
