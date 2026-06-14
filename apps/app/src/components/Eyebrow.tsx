@@ -12,7 +12,7 @@ export function Eyebrow({ children, color = colors.faded }: Props) {
   return (
     <Text
       style={{
-        fontFamily: 'HankenGrotesk_600SemiBold',
+        fontFamily: 'Nunito_600SemiBold',
         fontSize: 11.5,
         letterSpacing: 0.22 * 11.5, // 0.22em -> px
         textTransform: 'uppercase',

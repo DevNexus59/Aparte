@@ -14,7 +14,7 @@ interface Props extends Omit<PressableProps, 'children'> {
 }
 
 const VARIANTS: Record<Variant, { base: string; text: string }> = {
-  primary: { base: 'bg-accent',                                  text: '!text-[#16110B] font-semibold' },
+  primary: { base: 'bg-accent',                                  text: '!text-[#2B1B0E] font-semibold' },
   soft:    { base: 'bg-elevated border border-border',           text: 'text-text font-semibold' },
   ghost:   { base: 'bg-transparent',                             text: 'text-text-muted font-semibold' },
   outline: { base: 'bg-transparent border border-border',        text: 'text-text font-semibold' },
@@ -44,7 +44,7 @@ export function Button({
       }]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#16110B' : '#E8ECF1'} />
+        <ActivityIndicator color={variant === 'primary' ? '#2B1B0E' : '#E8ECF1'} />
       ) : (
         <Text variant="body" className={v.text}>{label}</Text>
       )}

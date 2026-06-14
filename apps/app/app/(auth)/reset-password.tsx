@@ -37,7 +37,7 @@ export default function ResetPassword() {
       <SafeAreaView className="flex-1">
         <KeyboardAvoidingView
           className="flex-1"
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <ScrollView contentContainerStyle={{ paddingHorizontal: 26, paddingTop: 40, paddingBottom: 40 }}>
             <View className="items-center mt-6 mb-10">

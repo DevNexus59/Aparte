@@ -74,7 +74,7 @@ function CustomTabBar({ state, navigation }: BottomTabBarProps) {
               style={{
                 fontSize: 10.5,
                 color: tint,
-                fontFamily: 'HankenGrotesk_600SemiBold',
+                fontFamily: 'Nunito_600SemiBold',
                 letterSpacing: 0.2,
               }}
             >

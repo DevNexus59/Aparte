@@ -56,7 +56,7 @@ export default function Conversation() {
 
         <KeyboardAvoidingView
           className="flex-1"
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={90}
         >
           <FlatList
@@ -113,12 +113,12 @@ function Bubble({ message, mine }: { message: Message; mine: boolean }) {
           mine ? 'bg-accent' : 'bg-surface border border-border',
         )}
       >
-        <Text variant="body" className={mine ? '!text-[#16110B]' : undefined}>
+        <Text variant="body" className={mine ? '!text-[#2B1B0E]' : undefined}>
           {message.content}
         </Text>
         <Text
           variant="caption"
-          className={mine ? '!text-[#16110B] opacity-60' : undefined}
+          className={mine ? '!text-[#2B1B0E] opacity-60' : undefined}
           tone={mine ? undefined : 'faded'}
         >
           {formatTime(message.createdAt)}

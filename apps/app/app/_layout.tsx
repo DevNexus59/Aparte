@@ -6,17 +6,13 @@ import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
-  Newsreader_300Light,
-  Newsreader_400Regular,
-  Newsreader_400Regular_Italic,
-  Newsreader_500Medium,
-} from '@expo-google-fonts/newsreader';
-import {
-  HankenGrotesk_400Regular,
-  HankenGrotesk_500Medium,
-  HankenGrotesk_600SemiBold,
-  HankenGrotesk_700Bold,
-} from '@expo-google-fonts/hanken-grotesk';
+  Nunito_300Light,
+  Nunito_400Regular,
+  Nunito_400Regular_Italic,
+  Nunito_500Medium,
+  Nunito_600SemiBold,
+  Nunito_700Bold,
+} from '@expo-google-fonts/nunito';
 import { GeistMono_400Regular } from '@expo-google-fonts/geist-mono';
 
 import { useAuth } from '@/stores/auth';
@@ -59,14 +55,12 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    Newsreader_300Light,
-    Newsreader_400Regular,
-    Newsreader_400Regular_Italic,
-    Newsreader_500Medium,
-    HankenGrotesk_400Regular,
-    HankenGrotesk_500Medium,
-    HankenGrotesk_600SemiBold,
-    HankenGrotesk_700Bold,
+    Nunito_300Light,
+    Nunito_400Regular,
+    Nunito_400Regular_Italic,
+    Nunito_500Medium,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
     GeistMono_400Regular,
   });
 

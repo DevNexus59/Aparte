@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { View, ScrollView, ScrollViewProps } from 'react-native';
+import { View, ScrollView, ScrollViewProps, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowField } from './GlowField';
 
@@ -25,15 +25,20 @@ export function Screen({
     <View className="flex-1 bg-bg">
       <GlowField glowColors={glowColors} intensity={glowIntensity} />
       <SafeAreaView className="flex-1" edges={['top']}>
-        <ScrollView
-          {...scrollProps}
-          contentContainerStyle={[
-            { paddingHorizontal: 22, paddingTop: 32, paddingBottom: 48 },
-            contentContainerStyle,
-          ]}
+        <KeyboardAvoidingView
+          className="flex-1"
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          {children}
-        </ScrollView>
+          <ScrollView
+            {...scrollProps}
+            contentContainerStyle={[
+              { paddingHorizontal: 22, paddingTop: 32, paddingBottom: 48 },
+              contentContainerStyle,
+            ]}
+          >
+            {children}
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </View>
   );

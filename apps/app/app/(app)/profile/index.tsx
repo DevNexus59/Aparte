@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Pressable, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
+import Constants from 'expo-constants';
 import { Text } from '@/components/Text';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
@@ -82,6 +83,10 @@ export default function Profile() {
 
       <ChangePasswordSheet open={changePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
       <DeleteAccountSheet open={deleteOpen} onClose={() => setDeleteOpen(false)} />
+
+      <Text variant="caption" tone="faded" className="mt-8 text-center">
+        v{Constants.expoConfig?.version}
+      </Text>
     </Screen>
   );
 }
