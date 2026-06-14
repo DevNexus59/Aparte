@@ -33,10 +33,6 @@ jobs:
         working-directory: apps/app
         run: echo '${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_KEY }}' > google-service-account.json
 
-      - name: Write Firebase google-services.json
-        working-directory: apps/app
-        run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > google-services.json
-
       - name: Build and submit to internal testing
         working-directory: apps/app
         env:
