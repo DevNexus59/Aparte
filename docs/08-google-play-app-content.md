@@ -43,12 +43,14 @@ coller l'URL une fois l'API déployée avec ce changement.
 Google doit pouvoir tester les fonctionnalités nécessitant un compte.
 
 - **Toutes les fonctionnalités nécessitent-elles une connexion ?** Oui.
-- **Identifiants de test** : créer un compte de test dédié (via l'app, en
-  vous inscrivant normalement avec un email type
-  `play-review+aparte@gmail.com` et une date de naissance ≥ 18 ans), puis
-  renseigner :
-  - Nom d'utilisateur : l'email choisi
-  - Mot de passe : le mot de passe choisi
+- **Identifiants de test** : le compte de test est créé/synchronisé
+  automatiquement au démarrage de l'API à partir des variables
+  `GOOGLE_REVIEW_EMAIL` / `GOOGLE_REVIEW_PASSWORD` du `.env`
+  (`apps/api/src/lib/seedReviewAccount.ts`). Il est marqué comme email
+  vérifié, ce qui le protège de la purge automatique des comptes non
+  confirmés après 24h. Renseigner dans la Play Console :
+  - Nom d'utilisateur : la valeur de `GOOGLE_REVIEW_EMAIL`
+  - Mot de passe : la valeur de `GOOGLE_REVIEW_PASSWORD`
   - Instructions complémentaires (champ libre) :
     > « Compte de test fonctionnel. L'application est un réseau social
     > privé limité à un "cercle" de 3 proches maximum ; le compte de test
@@ -56,9 +58,10 @@ Google doit pouvoir tester les fonctionnalités nécessitant un compte.
     > toutes les fonctionnalités (journal, état émotionnel, ajout de
     > présence) restent accessibles sans relation existante. »
 
-> ⚠️ À faire manuellement : créer ce compte de test une fois l'app
-> buildée, et le garder valide (ne pas le supprimer) pendant toute la durée
-> de la revue et des revues futures.
+> ⚠️ À faire manuellement : définir `GOOGLE_REVIEW_EMAIL` et
+> `GOOGLE_REVIEW_PASSWORD` dans le `.env` de production avant la revue —
+> le compte est ensuite créé/maintenu automatiquement à chaque démarrage de
+> l'API.
 
 ---
 

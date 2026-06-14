@@ -21,6 +21,10 @@ export class UserRepository extends BaseRepository<User> {
     });
   }
 
+  findByEmail(email: string): Promise<User | null> {
+    return this.repo.findOne({ where: { email } });
+  }
+
   create(input: CreateUserInput): Promise<User> {
     const user = this.repo.create({ ...input });
     return this.repo.save(user);
