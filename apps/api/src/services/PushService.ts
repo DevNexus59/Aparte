@@ -60,7 +60,7 @@ export class PushService {
 
     const messages: ExpoPushMessage[] = devices.map((d) => ({
       to: d.token,
-      title: input.title,
+      title: input.title ?? 'Aparté',
       body: input.body,
       data: input.data,
       sound: null,           // pas de son

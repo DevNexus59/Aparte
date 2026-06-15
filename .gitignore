@@ -11,6 +11,7 @@ apps/app/.expo/
 apps/app/dist/
 apps/app/web-build/
 apps/app/google-service-account.json
+apps/app/*.jks
 
 # OS / Editor
 .DS_Store
