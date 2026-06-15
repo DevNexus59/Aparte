@@ -7,11 +7,16 @@ on:
       - 'apps/app/**'
       - 'pnpm-lock.yaml'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v6
         with:
@@ -23,6 +28,21 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+
+      - name: Bump app version (semver)
+        id: bump
+        run: node apps/app/scripts/bump-version.js
+
+      - name: Commit and tag version bump
+        if: steps.bump.outputs.bumped == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apps/app/app.json
+          git commit -m "chore(app): bump version to ${{ steps.bump.outputs.version }} [skip ci]"
+          git tag "app-v${{ steps.bump.outputs.version }}"
+          git push origin HEAD:main
+          git push origin "app-v${{ steps.bump.outputs.version }}"
 
       - uses: expo/expo-github-action@v8
         with:
