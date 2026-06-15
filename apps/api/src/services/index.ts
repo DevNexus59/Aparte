@@ -4,7 +4,7 @@ import { Repositories } from '../repositories';
 import { Cache, MemoryCache } from '../lib/cache';
 import { MemoryTTLCache } from '../lib/ttlCache';
 import { NoopClassifier } from '../lib/moderation';
-import { AIProvider, NoopAIProvider, OpenAIProvider } from '../lib/ai';
+import { AIProvider, NoopAIProvider, GeminiProvider } from '../lib/ai';
 import { LocalFileStorage, FileStorage } from '../lib/storage';
 import { AuthService } from './AuthService';
 import { HeartbeatService } from './HeartbeatService';
@@ -40,9 +40,9 @@ export class Services {
     this.messages = new MessageService(repos, this.moderation, this.push);
     this.stats = new StatsService(repos);
 
-    // Suggestions IA (OpenAI) — désactivées silencieusement sans OPENAI_API_KEY.
-    const aiProvider: AIProvider = process.env.OPENAI_API_KEY
-      ? new OpenAIProvider(process.env.OPENAI_API_KEY, process.env.OPENAI_MODEL)
+    // Suggestions IA (Gemini) — désactivées silencieusement sans GEMINI_API_KEY.
+    const aiProvider: AIProvider = process.env.GEMINI_API_KEY
+      ? new GeminiProvider(process.env.GEMINI_API_KEY, process.env.GEMINI_MODEL)
       : new NoopAIProvider();
     this.ai = new AIService(repos, dataSource, aiProvider, new MemoryTTLCache(), this.heartbeat, this.states);
   }

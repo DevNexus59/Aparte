@@ -134,15 +134,15 @@ IA.</p>
 <p>Aparté propose, à titre optionnel, des suggestions générées par
 intelligence artificielle (idées d'accroche pour relancer une conversation,
 idées d'écriture pour votre journal, et certaines des « questions de la
-semaine »). Ces suggestions sont générées via l'API d'<strong>OpenAI</strong>
-(OpenAI, L.L.C., États-Unis), qui agit en tant que sous-traitant.</p>
+semaine »). Ces suggestions sont générées via l'API <strong>Gemini</strong>
+(Google Ireland Limited), qui agit en tant que sous-traitant.</p>
 <p>Seules des <strong>métadonnées minimales, calculées par nos serveurs</strong>,
-sont transmises à OpenAI : par exemple le nombre de jours depuis votre dernier
+sont transmises à Google : par exemple le nombre de jours depuis votre dernier
 message avec une personne de votre cercle, les libellés de votre état
 émotionnel et de celui de cette personne, les catégories de vos entrées de
 journal récentes, ou la liste des questions hebdomadaires déjà existantes.
 <strong>Le contenu de vos messages privés et de votre journal n'est jamais
-transmis à OpenAI.</strong></p>
+transmis à Google.</strong></p>
 <p>Ces fonctionnalités sont désactivées automatiquement (aucune suggestion
 n'est générée) si le service n'est pas configuré, sans impact sur le reste de
 l'application.</p>

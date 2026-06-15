@@ -7,8 +7,8 @@ import { CronLock } from '../entities/CronLock';
 import { WeeklyPrompt } from '../entities/WeeklyPrompt';
 import { LessThan, IsNull } from 'typeorm';
 
-// Plafond du pool de questions hebdo actives — borne le coût OpenAI cumulé
-// de l'enrichissement IA, indépendamment de la fréquence du cron.
+// Plafond du pool de questions hebdo actives — borne le coût cumulé de
+// l'enrichissement IA, indépendamment de la fréquence du cron.
 const MAX_ACTIVE_WEEKLY_PROMPTS = 30;
 
 const HOUR = 60 * 60 * 1000;
@@ -110,7 +110,7 @@ export function startCronJobs(repos: Repositories, services: Services): void {
   };
 
   // --- Enrichissement IA du pool de questions hebdo (mensuel, le 1er) ---
-  // Plafonné par MAX_ACTIVE_WEEKLY_PROMPTS pour borner le coût OpenAI.
+  // Plafonné par MAX_ACTIVE_WEEKLY_PROMPTS pour borner le coût IA.
   const runMonthlyPromptEnrichment = async () => {
     const now = new Date();
     if (now.getUTCDate() !== 1) return;

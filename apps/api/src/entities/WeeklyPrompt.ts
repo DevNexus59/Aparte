@@ -15,7 +15,7 @@ export class WeeklyPrompt {
   @Column({ type: 'boolean', default: true })
   active!: boolean;
 
-  // 'ai' pour les questions générées via OpenAI (cf. AIService.enrichWeeklyPrompts).
+  // 'ai' pour les questions générées via l'IA (Gemini, cf. AIService.enrichWeeklyPrompts).
   @Column({ type: 'enum', enum: ['manual', 'ai'], default: 'manual' })
   source!: 'manual' | 'ai';
 }

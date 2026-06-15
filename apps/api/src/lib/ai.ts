@@ -1,5 +1,5 @@
 // Pattern Strategy, miroir de lib/moderation.ts : une interface + un Noop
-// de repli, pour que l'app tourne sans OPENAI_API_KEY (side-project, pas
+// de repli, pour que l'app tourne sans GEMINI_API_KEY (side-project, pas
 // de facturation garantie). Les implémentations doivent être fail-open :
 // une erreur (réseau, parsing, timeout) retourne toujours un tableau vide,
 // jamais une exception qui remonterait à l'utilisateur.
@@ -79,13 +79,18 @@ const WEEKLY_PROMPT_SYSTEM_PROMPT = `Tu génères de nouvelles "questions de la 
 Tu reçois la liste des questions déjà existantes (à ne pas dupliquer ni reformuler trivialement) et le nombre de nouvelles questions à générer.
 Chaque question doit être courte (une phrase, en français, ton chaleureux et non culpabilisant), et classée dans une catégorie : gratitude, reconnect, memory ou reflection. Réponds uniquement avec le JSON demandé : un tableau "suggestions" d'objets { text, category }.`;
 
-export class OpenAIProvider implements AIProvider {
-  readonly name = 'openai';
+// Gemini expose une API compatible OpenAI (endpoint /v1beta/openai/) — on
+// réutilise donc le SDK `openai` avec une `baseURL` custom plutôt que
+// d'ajouter une dépendance dédiée.
+const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/';
+
+export class GeminiProvider implements AIProvider {
+  readonly name = 'gemini';
   private readonly client: OpenAI;
   private readonly model: string;
 
-  constructor(apiKey: string, model = 'gpt-4o-mini') {
-    this.client = new OpenAI({ apiKey });
+  constructor(apiKey: string, model = 'gemini-2.0-flash') {
+    this.client = new OpenAI({ apiKey, baseURL: GEMINI_BASE_URL });
     this.model = model;
   }
 

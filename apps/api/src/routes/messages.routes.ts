@@ -20,7 +20,7 @@ const sendLimiter = rateLimit({
 });
 
 // Anti cost-amplification : la mise en cache côté AIService limite déjà les
-// appels OpenAI, ce rate limit borne le coût même si le cache est contourné.
+// appels IA, ce rate limit borne le coût même si le cache est contourné.
 const suggestionsLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   limit: 10,

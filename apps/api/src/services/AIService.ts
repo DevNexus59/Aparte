@@ -9,7 +9,7 @@ import { EmotionalStateService } from './EmotionalStateService';
 
 const CONVERSATION_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6h
 const JOURNAL_CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12h
-const NEGATIVE_CACHE_TTL_MS = 60 * 60 * 1000; // 1h — évite de marteler OpenAI en cas d'échec/clé absente
+const NEGATIVE_CACHE_TTL_MS = 60 * 60 * 1000; // 1h — évite de marteler l'API IA en cas d'échec/clé absente
 
 export class AIService {
   constructor(
