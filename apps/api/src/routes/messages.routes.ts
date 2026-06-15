@@ -19,6 +19,15 @@ const sendLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Anti cost-amplification : la mise en cache côté AIService limite déjà les
+// appels IA, ce rate limit borne le coût même si le cache est contourné.
+const suggestionsLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+
 // Liste des conversations (cercle réciproque) avec aperçu du dernier message.
 messagesRouter.get('/', asyncHandler(async (req: AuthedRequest, res) => {
   const conversations = await services.messages.listConversations(currentUser(req).id);
@@ -33,6 +42,12 @@ messagesRouter.get('/:userId', asyncHandler(async (req: AuthedRequest, res) => {
     currentUser(req).id, req.params.userId, { before, limit },
   );
   res.json(page);
+}));
+
+// Suggestions d'accroche IA pour relancer la conversation.
+messagesRouter.get('/:userId/suggestions', suggestionsLimiter, asyncHandler(async (req: AuthedRequest, res) => {
+  const suggestions = await services.ai.getConversationStarters(currentUser(req).id, req.params.userId);
+  res.json({ suggestions });
 }));
 
 messagesRouter.post('/:userId', sendLimiter, asyncHandler(async (req: AuthedRequest, res) => {

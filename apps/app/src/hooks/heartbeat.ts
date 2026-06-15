@@ -40,3 +40,16 @@ export function useJournalEntries() {
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   });
 }
+
+export interface JournalSuggestion {
+  text: string;
+  category: 'gratitude' | 'reconnect' | 'memory' | 'reflection' | 'general';
+}
+
+export function useJournalSuggestions() {
+  return useQuery({
+    queryKey: ['journal-suggestions'],
+    queryFn: () => api<{ suggestions: JournalSuggestion[] }>('/heartbeat/journal/suggestions').then((d) => d.suggestions),
+    staleTime: 30 * 60 * 1000,
+  });
+}

@@ -4,7 +4,12 @@ import { Services } from '../services';
 import { EmotionalState } from '../entities/EmotionalState';
 import { User } from '../entities/User';
 import { CronLock } from '../entities/CronLock';
+import { WeeklyPrompt } from '../entities/WeeklyPrompt';
 import { LessThan, IsNull } from 'typeorm';
+
+// Plafond du pool de questions hebdo actives — borne le coût cumulé de
+// l'enrichissement IA, indépendamment de la fréquence du cron.
+const MAX_ACTIVE_WEEKLY_PROMPTS = 30;
 
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
@@ -104,6 +109,24 @@ export function startCronJobs(repos: Repositories, services: Services): void {
     }
   };
 
+  // --- Enrichissement IA du pool de questions hebdo (mensuel, le 1er) ---
+  // Plafonné par MAX_ACTIVE_WEEKLY_PROMPTS pour borner le coût IA.
+  const runMonthlyPromptEnrichment = async () => {
+    const now = new Date();
+    if (now.getUTCDate() !== 1) return;
+    if (!(await tryAcquireLock('ai_weekly_prompts', 23 * HOUR))) return;
+
+    try {
+      const activeCount = await AppDataSource.getRepository(WeeklyPrompt).count({ where: { active: true } });
+      if (activeCount >= MAX_ACTIVE_WEEKLY_PROMPTS) return;
+
+      const added = await services.ai.enrichWeeklyPrompts(6);
+      if (added.length > 0) console.log(`[cron] ${added.length} prompts IA ajoutés`);
+    } catch (e) {
+      console.error('[cron] AI prompt enrichment failed:', e);
+    }
+  };
+
   // Système de validation de compte : tout compte créé depuis plus de 24h et
   // jamais confirmé est de facto supprimé. Vérification horaire pour rester
   // proche de la limite de 24h.
@@ -131,4 +154,7 @@ export function startCronJobs(repos: Repositories, services: Services): void {
 
   setTimeout(runWeeklyPush, 2 * 60_000).unref();
   setInterval(runWeeklyPush, HOUR).unref();
+
+  setTimeout(runMonthlyPromptEnrichment, 3 * 60_000).unref();
+  setInterval(runMonthlyPromptEnrichment, HOUR).unref();
 }
