@@ -85,6 +85,8 @@ export default function Conversation() {
                     key={s}
                     onPress={() => setContent(s)}
                     className="px-4 py-2 rounded-full border border-border bg-surface"
+                    accessibilityRole="button"
+                    accessibilityLabel={s}
                   >
                     <Text variant="caption" tone="muted">{s}</Text>
                   </Pressable>

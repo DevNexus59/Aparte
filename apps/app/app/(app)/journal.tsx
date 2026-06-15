@@ -167,7 +167,12 @@ function JournalSuggestions({
     <View className="px-[22px] pb-4 gap-3">
       <Eyebrow>Idées pour aujourd'hui</Eyebrow>
       {suggestions.map((s) => (
-        <Pressable key={s.text} onPress={() => onPick(s)}>
+        <Pressable
+          key={s.text}
+          onPress={() => onPick(s)}
+          accessibilityRole="button"
+          accessibilityLabel={s.text}
+        >
           <Card pad={16} className="gap-2">
             <Text variant="caption" tone="muted">{CATEGORY_LABELS[s.category]}</Text>
             <Text variant="body" italic>{s.text}</Text>
