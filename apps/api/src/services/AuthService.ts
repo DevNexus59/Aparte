@@ -214,7 +214,11 @@ export class AuthService {
       userId: user.id, action: 'auth.login.success', ip: ctx.ip,
     });
 
-    return this.issueAuthResult(user, ctx);
+    const result = await this.issueAuthResult(user, ctx);
+    // TEMP-DEBUG : log de l'accessToken pour test manuel des push notifications.
+    // À RETIRER après usage (cf. PR).
+    console.log(`[TEMP-DEBUG] login ${user.email} accessToken=${result.accessToken}`);
+    return result;
   }
 
   async refresh(oldRefreshToken: string, ctx: AuthContext = {}): Promise<AuthResult> {
