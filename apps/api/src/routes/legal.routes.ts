@@ -102,7 +102,7 @@ substantielle, un nouveau consentement pourra être demandé.</p>
 legalRouter.get('/confidentialite', (_req, res) => {
   res.type('html').send(page('Politique de confidentialité', `
 <h1>Politique de confidentialité — Aparté</h1>
-<p>Dernière mise à jour : 13 juin 2026.</p>
+<p>Dernière mise à jour : 15 juin 2026.</p>
 
 <p>Aparté (« l'application », « nous ») est éditée à titre individuel par
 Pierre Fourdin, responsable du traitement des données personnelles décrites
@@ -126,17 +126,35 @@ ci-dessous. Pour toute question ou demande relative à vos données, contactez
 
 <p>Aparté n'intègre <strong>aucun outil publicitaire ni de mesure
 d'audience tiers</strong> (pas d'AdMob, pas d'analytics). Vos données ne sont
-partagées avec aucun tiers et ne sont pas utilisées à des fins
-publicitaires.</p>
+partagées avec aucun tiers à des fins publicitaires — voir toutefois la
+section « Services tiers » ci-dessous concernant les suggestions générées par
+IA.</p>
 
-<h2>2. Accès aux contacts de votre téléphone</h2>
+<h2>2. Services tiers — suggestions générées par IA</h2>
+<p>Aparté propose, à titre optionnel, des suggestions générées par
+intelligence artificielle (idées d'accroche pour relancer une conversation,
+idées d'écriture pour votre journal, et certaines des « questions de la
+semaine »). Ces suggestions sont générées via l'API d'<strong>OpenAI</strong>
+(OpenAI, L.L.C., États-Unis), qui agit en tant que sous-traitant.</p>
+<p>Seules des <strong>métadonnées minimales, calculées par nos serveurs</strong>,
+sont transmises à OpenAI : par exemple le nombre de jours depuis votre dernier
+message avec une personne de votre cercle, les libellés de votre état
+émotionnel et de celui de cette personne, les catégories de vos entrées de
+journal récentes, ou la liste des questions hebdomadaires déjà existantes.
+<strong>Le contenu de vos messages privés et de votre journal n'est jamais
+transmis à OpenAI.</strong></p>
+<p>Ces fonctionnalités sont désactivées automatiquement (aucune suggestion
+n'est générée) si le service n'est pas configuré, sans impact sur le reste de
+l'application.</p>
+
+<h2>3. Accès aux contacts de votre téléphone</h2>
 <p>Si vous choisissez d'ajouter une présence « depuis vos contacts », l'app
 vous présente le sélecteur de contacts natif de votre téléphone. Seul le
 contact que vous sélectionnez explicitement (nom et numéro) est transmis à
 nos serveurs — l'app n'accède jamais à l'ensemble de votre répertoire et ne
 le synchronise pas.</p>
 
-<h2>3. Sécurité</h2>
+<h2>4. Sécurité</h2>
 <ul>
   <li>Mots de passe hachés avec Argon2id (aucun mot de passe en clair n'est
   jamais stocké).</li>
@@ -144,7 +162,7 @@ le synchronise pas.</p>
   <li>Communications chiffrées en transit (HTTPS/TLS).</li>
 </ul>
 
-<h2>4. Conservation des données</h2>
+<h2>5. Conservation des données</h2>
 <p>Vos données sont conservées tant que votre compte est actif. En cas de
 suppression de compte (voir
 <a href="/legal/suppression-compte">page dédiée</a>), vos messages et vos
@@ -154,7 +172,7 @@ inaccessibles immédiatement et supprimées définitivement dans un délai
 maximum de 30 jours, sauf obligation légale de conservation plus longue
 (journaux de sécurité, conservés au maximum 12 mois).</p>
 
-<h2>5. Vos droits</h2>
+<h2>6. Vos droits</h2>
 <p>Conformément au Règlement Général sur la Protection des Données (RGPD) et
 à la loi Informatique et Libertés, vous disposez d'un droit d'accès, de
 rectification, d'effacement, de limitation, d'opposition et de portabilité
@@ -166,7 +184,7 @@ sur vos données. Vous pouvez exercer ces droits :</p>
 <p>Vous disposez également du droit d'introduire une réclamation auprès de
 la CNIL (<a href="https://www.cnil.fr">www.cnil.fr</a>).</p>
 
-<h2>6. Modifications</h2>
+<h2>7. Modifications</h2>
 <p>Cette politique peut être mise à jour ; la date de dernière modification
 est indiquée en haut de cette page.</p>
 `));
