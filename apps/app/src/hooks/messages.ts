@@ -27,6 +27,16 @@ export function useConversation(otherUserId: string) {
   });
 }
 
+// Cache backend : 6h (cf. AIService) — staleTime aligné pour éviter un refetch inutile.
+export function useConversationStarters(otherUserId: string) {
+  return useQuery({
+    queryKey: ['messages', otherUserId, 'suggestions'],
+    queryFn: () => api<{ suggestions: string[] }>(`/messages/${otherUserId}/suggestions`).then((d) => d.suggestions),
+    enabled: !!otherUserId,
+    staleTime: 6 * 60 * 60 * 1000,
+  });
+}
+
 export function useSendMessage(otherUserId: string) {
   const qc = useQueryClient();
   return useMutation({

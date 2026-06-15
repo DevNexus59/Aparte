@@ -7,7 +7,7 @@ import { Button } from '@/components/Button';
 import { GlowField } from '@/components/GlowField';
 import { useAuth } from '@/stores/auth';
 import { useLinks } from '@/hooks/links';
-import { useConversation, useSendMessage, flattenMessagePages, type Message } from '@/hooks/messages';
+import { useConversation, useConversationStarters, useSendMessage, flattenMessagePages, type Message } from '@/hooks/messages';
 import { errorMessage } from '@/hooks/auth';
 import { cn } from '@/lib/cn';
 import { useAccentColors } from '@/stores/accent';
@@ -24,6 +24,7 @@ export default function Conversation() {
   const myUserId = useAuth((s) => s.userId);
   const links = useLinks();
   const conversation = useConversation(userId);
+  const starters = useConversationStarters(userId);
   const send = useSendMessage(userId);
   const [content, setContent] = useState('');
   const accentColors = useAccentColors();
@@ -77,6 +78,21 @@ export default function Conversation() {
           />
 
           <View className="px-4 pb-3 pt-2 gap-2">
+            {(starters.data ?? []).length > 0 && !content.trim() && (
+              <View className="flex-row flex-wrap gap-2">
+                {(starters.data ?? []).map((s) => (
+                  <Pressable
+                    key={s}
+                    onPress={() => setContent(s)}
+                    className="px-4 py-2 rounded-full border border-border bg-surface"
+                    accessibilityRole="button"
+                    accessibilityLabel={s}
+                  >
+                    <Text variant="caption" tone="muted">{s}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
             {send.isError && (
               <Text variant="caption" className="text-state-want-to-see">
                 {errorMessage(send.error)}
