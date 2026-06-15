@@ -9,13 +9,24 @@ const PAGE_STYLE = `
   table { width: 100%; margin: 1em 0; }
 `;
 
+// Échappe les caractères spéciaux HTML — utile pour les messages d'erreur
+// qui pourraient un jour véhiculer une donnée (titre de page non confiée).
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export function page(title: string, body: string): string {
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${title} — Aparté</title>
+  <title>${escapeHtml(title)} — Aparté</title>
   <style>${PAGE_STYLE}</style>
 </head>
 <body>

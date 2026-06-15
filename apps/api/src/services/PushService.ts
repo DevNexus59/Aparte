@@ -45,8 +45,8 @@ export class PushService {
     return this.repos.pushDevices.registerOrUpdate(input);
   }
 
-  async dropDeviceByToken(token: string): Promise<void> {
-    await this.repos.pushDevices.dropToken(token);
+  async dropDeviceByToken(userId: string, token: string): Promise<void> {
+    await this.repos.pushDevices.dropTokenForUser(userId, token);
   }
 
   // Cœur : envoie un message à tous les devices des users ciblés.
