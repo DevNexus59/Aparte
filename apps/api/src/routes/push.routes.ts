@@ -36,8 +36,8 @@ pushRouter.post('/devices', deviceLimiter, asyncHandler(async (req: AuthedReques
   res.status(204).send();
 }));
 
-pushRouter.delete('/devices', asyncHandler(async (req: AuthedRequest, res) => {
+pushRouter.delete('/devices', deviceLimiter, asyncHandler(async (req: AuthedRequest, res) => {
   const { token } = parse(forgetSchema, req.body);
-  await services.push.dropDeviceByToken(token);
+  await services.push.dropDeviceByToken(currentUser(req).id, token);
   res.status(204).send();
 }));

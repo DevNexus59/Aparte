@@ -47,6 +47,13 @@ export class PushDeviceRepository extends BaseRepository<PushDevice> {
     await this.repo.delete({ token });
   }
 
+  // Désenregistrement par l'utilisateur lui-même : on restreint la
+  // suppression à ses propres devices pour éviter qu'un user déconnecte
+  // ceux d'un autre en devinant/réutilisant un token.
+  async dropTokenForUser(userId: string, token: string): Promise<void> {
+    await this.repo.delete({ userId, token });
+  }
+
   // Nettoyage : tokens d'un user spécifique (logout-all, suppression compte).
   async dropForUser(userId: string): Promise<void> {
     await this.repo.delete({ userId });

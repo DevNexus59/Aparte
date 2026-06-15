@@ -4,7 +4,7 @@ import { services } from '../services';
 import { asyncHandler, AppError } from "../middlewares/errorHandler";
 import { parseBody as parse } from "../lib/validation";
 import { hashToken } from '../lib/jwt';
-import { page } from '../lib/htmlPage';
+import { page, escapeHtml } from '../lib/htmlPage';
 import { requireAuth, currentUser, AuthedRequest } from '../middlewares/auth';
 
 export const authRouter = Router();
@@ -135,7 +135,7 @@ authRouter.get('/verify-email', asyncHandler(async (req, res) => {
     const message = err instanceof AppError ? err.message : 'Lien invalide ou expiré';
     res.type('html').send(page('Lien invalide', `
       <h1>Lien invalide ou expiré</h1>
-      <p>${message}</p>
+      <p>${escapeHtml(message)}</p>
       <p>Reconnecte-toi à l'application pour demander un nouveau lien de confirmation.</p>
     `));
   }
