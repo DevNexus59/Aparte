@@ -6,6 +6,7 @@ on:
     paths:
       - 'apps/app/**'
       - 'pnpm-lock.yaml'
+  workflow_dispatch:
 
 permissions:
   contents: write
