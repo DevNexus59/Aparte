@@ -5,6 +5,7 @@ import { services } from '../services';
 import { requireAuth, requireRole, currentUser, AuthedRequest } from '../middlewares/auth';
 import { asyncHandler, AppError } from "../middlewares/errorHandler";
 import { parseBody as parse } from "../lib/validation";
+import { normalizeLimit } from '../lib/pagination';
 
 export const moderationRouter = Router();
 moderationRouter.use(requireAuth);
@@ -51,7 +52,10 @@ moderationRouter.get(
   requireRole('moderator', 'admin'),
   asyncHandler(async (req, res) => {
     const before = typeof req.query.before === 'string' ? req.query.before : undefined;
-    const limit = typeof req.query.limit === 'string' ? Number(req.query.limit) : undefined;
+    if (before !== undefined && Number.isNaN(new Date(before).getTime())) {
+      throw new AppError(400, 'Paramètre before invalide (ISO 8601 attendu)');
+    }
+    const limit = normalizeLimit(typeof req.query.limit === 'string' ? Number(req.query.limit) : undefined);
     const page = await services.moderation.listOpenReports(before, limit);
     res.json(page);
   }),

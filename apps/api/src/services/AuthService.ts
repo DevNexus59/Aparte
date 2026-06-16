@@ -4,7 +4,7 @@ import { Cache } from '../lib/cache';
 import type { FileStorage } from '../lib/storage';
 import { hashPassword, verifyPassword } from '../lib/password';
 import {
-  signAccess, signRefresh, verifyRefresh, hashToken,
+  signAccess, signRefresh, verifyAccess, verifyRefresh, hashToken,
   TokenPayload, REFRESH_TTL_MS, ACCESS_TTL_MS,
 } from '../lib/jwt';
 import { isPasswordPwned } from '../lib/hibp';
@@ -101,7 +101,9 @@ export class AuthService {
     const user = await this.repos.users.findActiveByEmail(email);
     if (!user) return;
 
-    const code = crypto.randomInt(0, 1_000_000).toString().padStart(6, '0');
+    // SEC-15/SEC-16 : invalide les demandes précédentes avant d'en créer une nouvelle.
+    await this.repos.passwordResets.invalidatePending(user.id);
+    const code = crypto.randomBytes(32).toString('hex');
     await this.repos.passwordResets.create(
       user.id, hashToken(code), new Date(Date.now() + PASSWORD_RESET_TTL_MS),
     );
@@ -141,6 +143,8 @@ export class AuthService {
 
     const passwordHash = await hashPassword(newPassword);
     await this.repos.users.updatePassword(userId, passwordHash);
+    // SEC-14 : révocation de toutes les autres sessions après changement de mdp.
+    await this.repos.refreshTokens.revokeAllForUser(userId);
 
     await this.repos.audit.record({
       userId, action: 'user.password.change', entity: 'user', entityId: userId, ip: ctx.ip,
@@ -160,6 +164,8 @@ export class AuthService {
     const user = await this.repos.users.findById(userId);
     if (!user) throw new AppError(404, 'Utilisateur introuvable');
     if (user.emailVerifiedAt) throw new AppError(409, 'Compte déjà confirmé');
+    // SEC-15 : invalide les tokens précédents pour éviter l'accumulation.
+    await this.repos.emailVerifications.invalidatePending(userId);
     await this.sendVerificationEmail(user);
   }
 
@@ -214,11 +220,7 @@ export class AuthService {
       userId: user.id, action: 'auth.login.success', ip: ctx.ip,
     });
 
-    const result = await this.issueAuthResult(user, ctx);
-    // TEMP-DEBUG : log de l'accessToken pour test manuel des push notifications.
-    // À RETIRER après usage (cf. PR).
-    console.log(`[TEMP-DEBUG] login ${user.email} accessToken=${result.accessToken}`);
-    return result;
+    return this.issueAuthResult(user, ctx);
   }
 
   async refresh(oldRefreshToken: string, ctx: AuthContext = {}): Promise<AuthResult> {
@@ -361,16 +363,16 @@ export class AuthService {
 
   private async blacklistAccessToken(accessToken: string): Promise<void> {
     try {
-      const payload = JSON.parse(
-        Buffer.from(accessToken.split('.')[1] ?? '', 'base64url').toString('utf-8'),
-      ) as TokenPayload;
+      // Vérifie la signature avant de faire confiance au payload (SEC-12).
+      const payload = verifyAccess(accessToken);
       if (!payload.jti) return;
       const remainingMs = payload.exp
         ? payload.exp * 1000 - Date.now()
         : ACCESS_TTL_MS;
       if (remainingMs > 0) await this.blacklist.set(payload.jti, remainingMs);
-    } catch {
-      // Token malformé : pas grave, il sera rejeté par verifyAccess de toute façon.
+    } catch (e) {
+      // Token invalide/expiré : pas de blacklist nécessaire.
+      console.error('[auth] blacklistAccessToken failed', e);
     }
   }
 

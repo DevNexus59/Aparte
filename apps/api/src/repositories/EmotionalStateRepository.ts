@@ -11,7 +11,6 @@ interface SetInput {
 interface CircleStateRow {
   userId: string;
   displayName: string;
-  photoUrl: string | null;
   state: StateValue;
   setAt: Date;
   expiresAt: Date;
@@ -61,7 +60,6 @@ export class EmotionalStateRepository extends BaseRepository<EmotionalState> {
     const rows = await this.dataSource.query(
       `SELECT s.user_id AS userId,
               u.display_name AS displayName,
-              u.photo_url AS photoUrl,
               s.state, s.set_at AS setAt, s.expires_at AS expiresAt
        FROM emotional_states s
        JOIN users u ON u.id = s.user_id AND u.deleted_at IS NULL
