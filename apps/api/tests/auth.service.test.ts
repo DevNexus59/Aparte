@@ -38,11 +38,13 @@ function makeRepos(opts: {
       create: vi.fn(track('passwordResets.create')),
       findUsableByHash: vi.fn(async () => null),
       markUsed: vi.fn(track('passwordResets.markUsed')),
+      invalidatePending: vi.fn(async () => undefined),
     },
     emailVerifications: {
       create: vi.fn(track('emailVerifications.create')),
       findUsableByHash: vi.fn(async () => null),
       markUsed: vi.fn(track('emailVerifications.markUsed')),
+      invalidatePending: vi.fn(async () => undefined),
     },
     refreshTokens: {
       issue: vi.fn(async () => ({})),
