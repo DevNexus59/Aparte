@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { services } from '../services';
 import { asyncHandler, AppError } from "../middlewares/errorHandler";
@@ -8,6 +9,18 @@ import { page, escapeHtml } from '../lib/htmlPage';
 import { requireAuth, currentUser, AuthedRequest } from '../middlewares/auth';
 
 export const authRouter = Router();
+
+// SEC-06 : 3 tentatives / 15 min par IP — séparé du budget global auth.
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, limit: 3,
+  standardHeaders: 'draft-7', legacyHeaders: false,
+});
+
+// SEC-05 : 3 renvois / 15 min par IP pour éviter le spam d'emails.
+const resendVerifLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, limit: 3,
+  standardHeaders: 'draft-7', legacyHeaders: false,
+});
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -29,12 +42,12 @@ const loginSchema = z.object({
 
 const refreshSchema = z.object({ refreshToken: z.string().min(10) });
 
-const deleteAccountSchema = z.object({ password: z.string().min(1) });
+const deleteAccountSchema = z.object({ password: z.string().min(12) });
 
 const forgotPasswordSchema = z.object({ email: z.string().email() });
 
 const resetPasswordSchema = z.object({
-  code: z.string().min(6).max(6),
+  code: z.string().length(64).regex(/^[0-9a-f]+$/),
   newPassword: z.string().min(12),
 });
 
@@ -67,7 +80,8 @@ authRouter.post('/refresh', asyncHandler(async (req, res) => {
   res.json(result);
 }));
 
-authRouter.post('/logout', asyncHandler(async (req: AuthedRequest, res) => {
+// SEC-04 : requireAuth pour que req.accessToken soit populé et blacklisté.
+authRouter.post('/logout', requireAuth, asyncHandler(async (req: AuthedRequest, res) => {
   const { refreshToken } = parse(refreshSchema, req.body);
   await services.auth.logout(refreshToken, req.accessToken);
   res.status(204).send();
@@ -96,7 +110,7 @@ authRouter.delete('/me', requireAuth, asyncHandler(async (req: AuthedRequest, re
 
 // Mot de passe oublié : envoie un code de réinitialisation par email.
 // Réponse toujours 204, même si l'email n'existe pas (anti-énumération).
-authRouter.post('/forgot-password', asyncHandler(async (req, res) => {
+authRouter.post('/forgot-password', forgotPasswordLimiter, asyncHandler(async (req, res) => {
   const { email } = parse(forgotPasswordSchema, req.body);
   await services.auth.requestPasswordReset(email, ctxOf(req));
   res.status(204).send();
@@ -117,7 +131,7 @@ authRouter.post('/change-password', requireAuth, asyncHandler(async (req: Authed
 }));
 
 // Renvoi de l'email de confirmation de compte.
-authRouter.post('/resend-verification', requireAuth, asyncHandler(async (req: AuthedRequest, res) => {
+authRouter.post('/resend-verification', requireAuth, resendVerifLimiter, asyncHandler(async (req: AuthedRequest, res) => {
   await services.auth.resendVerificationEmail(currentUser(req).id);
   res.status(204).send();
 }));

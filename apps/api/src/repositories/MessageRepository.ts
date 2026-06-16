@@ -1,8 +1,9 @@
-import { DataSource, LessThan, IsNull } from 'typeorm';
+import { DataSource, IsNull, LessThan } from 'typeorm';
 import { BaseRepository } from './BaseRepository';
 import { Message, conversationKey } from '../entities/Message';
-import { CursorPage, CursorPageOptions, normalizeLimit } from '../lib/pagination';
 import { AppError } from '../middlewares/errorHandler';
+import type { CursorPage, CursorPageOptions } from '../lib/pagination';
+import { normalizeLimit } from '../lib/pagination';
 
 interface CreateInput {
   senderId: string;
@@ -52,51 +53,58 @@ export class MessageRepository extends BaseRepository<Message> {
     return { items: page, nextCursor };
   }
 
-  // Dernier message échangé avec chacun des `otherUserIds` (cercle réciproque,
-  // borné à quelques contacts — une requête par conversation reste négligeable).
+  // Dernier message échangé avec chacun des `otherUserIds` — requêtes
+  // parallèles (circle ≤ 3 membres) pour éviter la latence séquentielle.
   async lastMessageFor(userId: string, otherUserIds: string[]): Promise<Map<string, Message>> {
     const result = new Map<string, Message>();
-    for (const otherUserId of otherUserIds) {
-      const last = await this.repo.findOne({
-        where: { conversationKey: conversationKey(userId, otherUserId), deletedAt: IsNull() },
-        order: { createdAt: 'DESC' },
-      });
-      if (last) result.set(otherUserId, last);
-    }
+    await Promise.all(
+      otherUserIds.map(async (otherUserId) => {
+        const last = await this.repo.findOne({
+          where: { conversationKey: conversationKey(userId, otherUserId), deletedAt: IsNull() },
+          order: { createdAt: 'DESC' },
+        });
+        if (last) result.set(otherUserId, last);
+      }),
+    );
     return result;
   }
 
   async softDeleteOwn(messageId: string, userId: string): Promise<void> {
-    const result = await this.repo.softDelete({ id: messageId, senderId: userId } as never);
-    if (result.affected === 0) throw new AppError(404, 'Message introuvable');
+    const result = await this.dataSource
+      .createQueryBuilder()
+      .softDelete()
+      .from(Message)
+      .where('id = :id AND sender_id = :senderId', { id: messageId, senderId: userId })
+      .execute();
+    if ((result.affected ?? 0) === 0) throw new AppError(404, 'Message introuvable');
   }
 
   // RGPD : purge dure des messages d'un utilisateur supprimé (envoyés ou reçus).
   async purgeForUser(userId: string): Promise<void> {
-    await this.repo.delete({ senderId: userId } as never);
-    await this.repo.delete({ recipientId: userId } as never);
+    await this.dataSource
+      .createQueryBuilder()
+      .delete()
+      .from(Message)
+      .where('sender_id = :userId OR recipient_id = :userId', { userId })
+      .execute();
   }
 
   // RGPD : export — tous les messages envoyés ou reçus, déchiffrement à
   // la charge de l'appelant (champs ciphertext/iv/authTag exposés bruts).
   findAllForUser(userId: string): Promise<Message[]> {
-    return this.repo.find({
-      where: [
-        { senderId: userId, deletedAt: IsNull() },
-        { recipientId: userId, deletedAt: IsNull() },
-      ] as never,
-      order: { createdAt: 'ASC' },
-    });
+    return this.repo
+      .createQueryBuilder('m')
+      .where('(m.sender_id = :userId OR m.recipient_id = :userId) AND m.deleted_at IS NULL', { userId })
+      .orderBy('m.created_at', 'ASC')
+      .getMany();
   }
 
   // Stats non-anxiogènes : volume d'échanges (envoyés + reçus), un indicateur
   // de présence du lien — pas un score de réactivité.
-  async countForUser(userId: string): Promise<number> {
-    return this.repo.count({
-      where: [
-        { senderId: userId, deletedAt: IsNull() },
-        { recipientId: userId, deletedAt: IsNull() },
-      ] as never,
-    });
+  countForUser(userId: string): Promise<number> {
+    return this.repo
+      .createQueryBuilder('m')
+      .where('(m.sender_id = :userId OR m.recipient_id = :userId) AND m.deleted_at IS NULL', { userId })
+      .getCount();
   }
 }

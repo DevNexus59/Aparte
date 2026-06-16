@@ -15,7 +15,7 @@ interface SendOptions {
 // bloquer le flux et permettre de récupérer le lien depuis les logs.
 async function send({ to, subject, html }: SendOptions): Promise<void> {
   if (!resend) {
-    console.log(`[email] (dev, non envoyé) à ${to} — ${subject}\n${html}`);
+    console.log(`[email] (dev, non envoyé) à ${to} — ${subject}`);
     return;
   }
   await resend.emails.send({ from: FROM, to, subject, html });

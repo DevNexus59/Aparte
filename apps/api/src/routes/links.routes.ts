@@ -33,7 +33,6 @@ linksRouter.get('/invitations', asyncHandler(async (req: AuthedRequest, res) => 
       id: l.id,
       ownerUserId: l.ownerUserId,
       ownerDisplayName: l.owner.displayName,
-      ownerPhotoUrl: l.owner.photoUrl,
       createdAt: l.createdAt,
     })),
   });

@@ -3,8 +3,9 @@ import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
 import { services } from '../services';
 import { requireAuth, currentUser, AuthedRequest } from '../middlewares/auth';
-import { asyncHandler } from '../middlewares/errorHandler';
+import { asyncHandler, AppError } from '../middlewares/errorHandler';
 import { parseBody as parse } from '../lib/validation';
+import { normalizeLimit } from '../lib/pagination';
 
 export const messagesRouter = Router();
 messagesRouter.use(requireAuth);
@@ -37,7 +38,10 @@ messagesRouter.get('/', asyncHandler(async (req: AuthedRequest, res) => {
 // Historique paginé d'une conversation — ?before=<iso>&limit=20
 messagesRouter.get('/:userId', asyncHandler(async (req: AuthedRequest, res) => {
   const before = typeof req.query.before === 'string' ? req.query.before : undefined;
-  const limit = typeof req.query.limit === 'string' ? Number(req.query.limit) : undefined;
+  if (before !== undefined && Number.isNaN(new Date(before).getTime())) {
+    throw new AppError(400, 'Paramètre before invalide (ISO 8601 attendu)');
+  }
+  const limit = normalizeLimit(typeof req.query.limit === 'string' ? Number(req.query.limit) : undefined);
   const page = await services.messages.listConversation(
     currentUser(req).id, req.params.userId, { before, limit },
   );

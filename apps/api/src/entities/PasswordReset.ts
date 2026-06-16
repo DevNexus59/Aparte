@@ -17,6 +17,7 @@ export class PasswordReset {
   @JoinColumn({ name: 'user_id' })
   user!: User;
 
+  @Index({ unique: true })
   @Column({ type: 'varchar', length: 255 })
   tokenHash!: string;
 

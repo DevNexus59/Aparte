@@ -21,12 +21,13 @@ export function createApp() {
 
   app.use(helmet());
 
-  // I1 : CORS strict en prod.
+  // I1 : CORS strict en prod. SEC-09 : le fallback open est limité au dev.
   const origins = process.env.CORS_ORIGIN?.split(',').map((s) => s.trim());
   if (process.env.NODE_ENV === 'production' && (!origins || origins.length === 0)) {
     throw new Error('CORS_ORIGIN doit être défini en production');
   }
-  app.use(cors({ origin: origins ?? true, credentials: true }));
+  const corsOrigin = origins ?? (process.env.NODE_ENV === 'development');
+  app.use(cors({ origin: corsOrigin, credentials: true }));
 
   app.use(express.json({ limit: '100kb' }));
 

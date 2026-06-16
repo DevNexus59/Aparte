@@ -95,13 +95,14 @@ export class PushService {
     });
   }
 
-  // Si Expo nous dit "DeviceNotRegistered", on supprime le token : il est mort.
+  // Si Expo nous dit "DeviceNotRegistered", on supprime les tokens morts en un seul DELETE.
   private async handleTickets(messages: ExpoPushMessage[], tickets: ExpoPushTicket[]): Promise<void> {
+    const deadTokens: string[] = [];
     for (let i = 0; i < tickets.length; i++) {
-      const t = tickets[i];
-      if (t.status === 'error' && t.details?.error === 'DeviceNotRegistered') {
-        await this.repos.pushDevices.dropToken(messages[i].to).catch(() => undefined);
+      if (tickets[i].status === 'error' && tickets[i].details?.error === 'DeviceNotRegistered') {
+        deadTokens.push(messages[i].to);
       }
     }
+    await this.repos.pushDevices.dropTokens(deadTokens).catch(() => undefined);
   }
 }

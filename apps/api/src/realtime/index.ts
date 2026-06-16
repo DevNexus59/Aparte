@@ -18,9 +18,10 @@ let io: IOServer | null = null;
 // `user:<id>` après authentification par le même access token JWT que l'API.
 export function initRealtime(httpServer: http.Server): IOServer {
   const origins = process.env.CORS_ORIGIN?.split(',').map((s) => s.trim());
+  const corsOrigin = origins ?? (process.env.NODE_ENV === 'development');
 
   io = new IOServer(httpServer, {
-    cors: { origin: origins ?? true, credentials: true },
+    cors: { origin: corsOrigin, credentials: true },
   });
 
   io.use(async (socket: Socket, next) => {

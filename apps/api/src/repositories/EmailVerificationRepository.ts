@@ -21,4 +21,8 @@ export class EmailVerificationRepository extends BaseRepository<EmailVerificatio
   async markUsed(id: string): Promise<void> {
     await this.repo.update(id, { used: true });
   }
+
+  async invalidatePending(userId: string): Promise<void> {
+    await this.repo.update({ userId, used: false }, { used: true });
+  }
 }
