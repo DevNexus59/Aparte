@@ -24,18 +24,31 @@ interface JournalInput {
 }
 
 export class HeartbeatService {
+  private cachedPrompts: { prompts: WeeklyPrompt[]; expiresAt: number } | null = null;
+
   constructor(
     private readonly repos: Repositories,
     private readonly dataSource: DataSource,
   ) {}
 
   // Une seule question stable sur toute la semaine, qui tourne d'une semaine à l'autre.
+  // PERF-08: les prompts changent mensuellement — on met en cache 1h.
   async getCurrentWeeklyPrompt(): Promise<WeeklyPrompt | null> {
+    const prompts = await this.getActivePrompts();
+    if (prompts.length === 0) return null;
+    return prompts[isoWeek() % prompts.length];
+  }
+
+  private async getActivePrompts(): Promise<WeeklyPrompt[]> {
+    const now = Date.now();
+    if (this.cachedPrompts && this.cachedPrompts.expiresAt > now) {
+      return this.cachedPrompts.prompts;
+    }
     const prompts = await this.dataSource
       .getRepository(WeeklyPrompt)
       .find({ where: { active: true }, order: { id: 'ASC' } });
-    if (prompts.length === 0) return null;
-    return prompts[isoWeek() % prompts.length];
+    this.cachedPrompts = { prompts, expiresAt: now + 60 * 60 * 1000 };
+    return prompts;
   }
 
   // Cœur de la boucle : journal entry + nudge (si linkId) dans une transaction

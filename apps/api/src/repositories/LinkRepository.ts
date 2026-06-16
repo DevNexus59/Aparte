@@ -222,4 +222,21 @@ export class LinkRepository extends BaseRepository<Link> {
       .getCount();
     return count > 0;
   }
+
+  // PERF-01: filtre en une seule requête parmi les `candidates` ceux qui sont
+  // réciproquement liés à `userId` — évite le N+1 dans listConversations.
+  async listReciprocalIds(userId: string, candidates: string[]): Promise<string[]> {
+    if (candidates.length === 0) return [];
+    const rows = await this.repo
+      .createQueryBuilder('la')
+      .innerJoin(Link, 'lb',
+        'lb.owner_user_id = la.member_user_id AND lb.member_user_id = la.owner_user_id AND lb.status = \'active\'',
+      )
+      .select('la.member_user_id', 'memberId')
+      .where('la.owner_user_id = :userId AND la.member_user_id IN (:...candidates) AND la.status = \'active\'',
+        { userId, candidates },
+      )
+      .getRawMany<{ memberId: string }>();
+    return rows.map((r) => r.memberId);
+  }
 }

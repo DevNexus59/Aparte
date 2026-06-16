@@ -92,12 +92,8 @@ export class MessageService {
       .filter((l) => l.status === 'active' && l.memberUserId)
       .map((l) => l.memberUserId as string);
 
-    const reciprocalIds: string[] = [];
-    for (const otherUserId of otherUserIds) {
-      if (await this.repos.links.areReciprocallyLinked(userId, otherUserId)) {
-        reciprocalIds.push(otherUserId);
-      }
-    }
+    // PERF-01: une requête batch au lieu d'une par contact.
+    const reciprocalIds = await this.repos.links.listReciprocalIds(userId, otherUserIds);
 
     const lastMessages = await this.repos.messages.lastMessageFor(userId, reciprocalIds);
 

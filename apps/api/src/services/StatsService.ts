@@ -16,15 +16,14 @@ export class StatsService {
   constructor(private readonly repos: Repositories) {}
 
   async getMyStats(userId: string): Promise<MyStats> {
-    const user = await this.repos.users.findById(userId);
-    if (!user) throw new AppError(404, 'Utilisateur introuvable');
-
-    const [{ counts, perLink }, actedNudges, messagesExchanged, links] = await Promise.all([
+    const [user, { counts, perLink }, actedNudges, messagesExchanged, links] = await Promise.all([
+      this.repos.users.findById(userId),
       this.repos.journal.statsForUser(userId),
       this.repos.nudges.countActedForUser(userId),
       this.repos.messages.countForUser(userId),
       this.repos.links.listForOwner(userId),
     ]);
+    if (!user) throw new AppError(404, 'Utilisateur introuvable');
 
     return {
       memberSince: user.createdAt.toISOString(),

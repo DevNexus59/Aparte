@@ -26,19 +26,24 @@ export function AuthedImage({ userId, style, fallback }: Props) {
     setDataUri(null);
     if (!accessToken) return;
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+
     (async () => {
       try {
         const res = await fetch(`${API_URL}/photos/${userId}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
+          signal: controller.signal,
         });
         if (!res.ok) return; // 403/404 -> fallback
         const buffer = await res.arrayBuffer();
         const contentType = res.headers.get('content-type') ?? 'image/jpeg';
         if (!cancelled) setDataUri(arrayBufferToDataUri(buffer, contentType));
-      } catch { /* fallback silencieux */ }
+      } catch { /* fallback silencieux (réseau, abort, timeout) */ }
+      finally { clearTimeout(timeout); }
     })();
 
-    return () => { cancelled = true; };
+    return () => { cancelled = true; controller.abort(); clearTimeout(timeout); };
   }, [userId, accessToken]);
 
   if (!dataUri) return <View style={style}>{fallback}</View>;
