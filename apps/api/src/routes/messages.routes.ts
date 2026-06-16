@@ -43,24 +43,24 @@ messagesRouter.get('/:userId', asyncHandler(async (req: AuthedRequest, res) => {
   }
   const limit = normalizeLimit(typeof req.query.limit === 'string' ? Number(req.query.limit) : undefined);
   const page = await services.messages.listConversation(
-    currentUser(req).id, req.params.userId, { before, limit },
+    currentUser(req).id, String(req.params.userId), { before, limit },
   );
   res.json(page);
 }));
 
 // Suggestions d'accroche IA pour relancer la conversation.
 messagesRouter.get('/:userId/suggestions', suggestionsLimiter, asyncHandler(async (req: AuthedRequest, res) => {
-  const suggestions = await services.ai.getConversationStarters(currentUser(req).id, req.params.userId);
+  const suggestions = await services.ai.getConversationStarters(currentUser(req).id, String(req.params.userId));
   res.json({ suggestions });
 }));
 
 messagesRouter.post('/:userId', sendLimiter, asyncHandler(async (req: AuthedRequest, res) => {
   const { content } = parse(sendSchema, req.body);
-  const message = await services.messages.send(currentUser(req).id, req.params.userId, content);
+  const message = await services.messages.send(currentUser(req).id, String(req.params.userId), content);
   res.status(201).json(message);
 }));
 
 messagesRouter.delete('/:userId/:messageId', asyncHandler(async (req: AuthedRequest, res) => {
-  await services.messages.deleteMessage(currentUser(req).id, req.params.messageId);
+  await services.messages.deleteMessage(currentUser(req).id, String(req.params.messageId));
   res.status(204).send();
 }));

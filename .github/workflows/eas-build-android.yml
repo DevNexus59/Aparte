@@ -21,7 +21,7 @@ jobs:
 
       - uses: pnpm/action-setup@v6
         with:
-          version: 9.15.0
+          version: 9.15.9
 
       - uses: actions/setup-node@v6
         with:
@@ -46,7 +46,7 @@ jobs:
           git push origin HEAD:main
           git push origin "app-v${{ steps.bump.outputs.version }}"
 
-      - uses: expo/expo-github-action@v8
+      - uses: expo/expo-github-action@v9
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}

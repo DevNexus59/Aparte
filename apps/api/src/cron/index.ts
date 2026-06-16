@@ -92,7 +92,7 @@ export function startCronJobs(repos: Repositories, services: Services): void {
 
       const activeUsers = await AppDataSource.getRepository(User).find({
         where: { status: 'active', deletedAt: IsNull() },
-        select: ['id'],
+        select: { id: true },
       });
       const userIds = activeUsers.map((u) => u.id);
       if (userIds.length === 0) return;

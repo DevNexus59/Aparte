@@ -3,16 +3,10 @@
     "name": "Aparté",
     "slug": "aparte",
     "scheme": "aparte",
-    "version": "0.4.15",
+    "version": "0.5.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "backgroundColor": "#0A0D11",
-      "resizeMode": "contain"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.aparte.app"
@@ -20,7 +14,6 @@
     "android": {
       "package": "com.aparte.app",
       "googleServicesFile": "./google-services.json",
-      "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0A0D11"
@@ -33,7 +26,17 @@
     },
     "plugins": [
       "expo-router",
+      "expo-font",
+      "expo-status-bar",
       "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "backgroundColor": "#0A0D11",
+          "resizeMode": "contain"
+        }
+      ],
       [
         "expo-contacts",
         {

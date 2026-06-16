@@ -39,12 +39,12 @@ linksRouter.get('/invitations', asyncHandler(async (req: AuthedRequest, res) => 
 }));
 
 linksRouter.post('/invitations/:id/accept', asyncHandler(async (req: AuthedRequest, res) => {
-  const link = await services.links.acceptInvitation(req.params.id, currentUser(req).id);
+  const link = await services.links.acceptInvitation(String(req.params.id), currentUser(req).id);
   res.status(201).json({ link });
 }));
 
 linksRouter.post('/invitations/:id/decline', asyncHandler(async (req: AuthedRequest, res) => {
-  await services.links.dismissInvitation(req.params.id, currentUser(req).id);
+  await services.links.dismissInvitation(String(req.params.id), currentUser(req).id);
   res.status(204).send();
 }));
 
@@ -56,11 +56,11 @@ linksRouter.post('/', asyncHandler(async (req: AuthedRequest, res) => {
 
 linksRouter.patch('/:id', asyncHandler(async (req: AuthedRequest, res) => {
   const updates = parse(updateSchema, req.body);
-  await services.links.update(req.params.id, currentUser(req).id, updates);
+  await services.links.update(String(req.params.id), currentUser(req).id, updates);
   res.status(204).send();
 }));
 
 linksRouter.delete('/:id', asyncHandler(async (req: AuthedRequest, res) => {
-  await services.links.remove(req.params.id, currentUser(req).id);
+  await services.links.remove(String(req.params.id), currentUser(req).id);
   res.status(204).send();
 }));

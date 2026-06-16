@@ -50,7 +50,7 @@ export class AIService {
   // par une route accessible à un utilisateur final.
   async enrichWeeklyPrompts(count: number): Promise<WeeklyPrompt[]> {
     const repo = this.dataSource.getRepository(WeeklyPrompt);
-    const existing = await repo.find({ select: ['text'] });
+    const existing = await repo.find({ select: { text: true } });
     const generated = await this.provider.weeklyPrompts({
       existingTexts: existing.map((p) => p.text),
       count,
