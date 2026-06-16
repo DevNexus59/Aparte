@@ -41,6 +41,7 @@ jobs:
           git add apps/app/app.json
           git commit -m "chore(app): bump version to ${{ steps.bump.outputs.version }} [skip ci]"
           git tag "app-v${{ steps.bump.outputs.version }}"
+          git pull --rebase origin main
           git push origin HEAD:main
           git push origin "app-v${{ steps.bump.outputs.version }}"
 
