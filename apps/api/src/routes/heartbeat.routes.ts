@@ -65,6 +65,6 @@ heartbeatRouter.get('/nudges', asyncHandler(async (req: AuthedRequest, res) => {
 
 heartbeatRouter.patch('/nudges/:id', asyncHandler(async (req: AuthedRequest, res) => {
   const { status } = parse(nudgeStatusSchema, req.body);
-  await services.heartbeat.updateNudgeStatus(currentUser(req).id, req.params.id, status);
+  await services.heartbeat.updateNudgeStatus(currentUser(req).id, String(req.params.id), status);
   res.status(204).send();
 }));

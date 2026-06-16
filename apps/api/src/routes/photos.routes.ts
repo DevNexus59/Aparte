@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { Router } from 'express';
+import { type RequestHandler, Router } from 'express';
 import multer from 'multer';
 import rateLimit from 'express-rate-limit';
 import { services } from '../services';
@@ -26,7 +26,7 @@ photosRouter.use(requireAuth);
 photosRouter.post(
   '/me',
   uploadLimiter,
-  upload.single('photo'),
+  upload.single('photo') as unknown as RequestHandler,
   asyncHandler(async (req: AuthedRequest, res) => {
     if (!req.file) throw new AppError(400, 'Aucun fichier fourni (champ "photo")');
     const result = await services.photos.uploadProfilePhoto({
@@ -46,7 +46,7 @@ photosRouter.get(
   asyncHandler(async (req: AuthedRequest, res) => {
     const { buffer, mime } = await services.photos.readPhotoFor(
       currentUser(req).id,
-      req.params.userId,
+      String(req.params.userId),
     );
     const etag = `"${crypto.createHash('sha256').update(buffer).digest('hex').slice(0, 16)}"`;
     res.setHeader('ETag', etag);

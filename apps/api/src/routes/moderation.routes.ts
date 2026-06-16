@@ -67,7 +67,7 @@ moderationRouter.patch(
   requireRole('moderator', 'admin'),
   asyncHandler(async (req: AuthedRequest, res) => {
     const { status } = parse(resolveSchema, req.body);
-    await services.moderation.resolveReport(req.params.id, status, currentUser(req).id);
+    await services.moderation.resolveReport(String(req.params.id), status, currentUser(req).id);
     res.status(204).send();
   }),
 );

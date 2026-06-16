@@ -12,5 +12,5 @@
     "app:web":     "pnpm --filter cercle-app web",
     "typecheck":   "pnpm -r --if-present typecheck"
   },
-  "packageManager": "pnpm@9.15.0"
+  "packageManager": "pnpm@9.15.9"
 }
