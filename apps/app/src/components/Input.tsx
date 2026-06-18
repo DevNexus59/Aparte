@@ -29,9 +29,11 @@ export function Input({
         placeholderTextColor={colors.faded}
         onFocus={(e) => { setFocused(true); onFocus?.(e); }}
         onBlur={(e) => { setFocused(false); onBlur?.(e); }}
+        textAlignVertical={rest.multiline ? 'top' : 'center'}
         className={cn(
-          'h-12 px-4 rounded-sm text-body font-sans text-text bg-surface',
+          'px-4 rounded-sm text-body font-sans text-text bg-surface',
           'border',
+          rest.multiline ? 'min-h-[48px] py-3' : 'h-12',
           focused ? 'border-accent' : 'border-border',
         )}
       />

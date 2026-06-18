@@ -190,6 +190,71 @@ est indiquée en haut de cette page.</p>
 `));
 });
 
+legalRouter.get('/protection-mineurs', (_req, res) => {
+  res.type('html').send(page('Protection des mineurs', `
+<h1>Protection des mineurs — Aparté</h1>
+<p>Dernière mise à jour : 18 juin 2026.</p>
+
+<h2>1. Application réservée aux adultes</h2>
+<p>Aparté est exclusivement destinée aux personnes âgées de <strong>18 ans et
+plus</strong>. La date de naissance est collectée lors de l'inscription et
+l'accès est refusé aux personnes mineures. L'application n'est pas conçue
+pour, et ne doit pas être utilisée par, des enfants.</p>
+
+<h2>2. Contenu généré par les utilisateurs</h2>
+<p>L'application permet l'échange de messages privés et la rédaction
+d'entrées de journal au sein d'un cercle fermé (maximum 3 personnes). Ces
+contenus sont strictement privés et ne sont pas accessibles publiquement.
+Aucune fonctionnalité de l'application n'est destinée à mettre en relation
+des inconnus.</p>
+
+<h2>3. Contenu interdit</h2>
+<p>Tout contenu impliquant l'exploitation sexuelle ou la maltraitance
+d'enfants (CSAM/CSAE) est <strong>strictement interdit</strong> sur
+Aparté. Cette interdiction inclut, sans s'y limiter :</p>
+<ul>
+  <li>Toute image, vidéo, texte ou autre contenu représentant l'abus sexuel
+  ou l'exploitation d'un mineur ;</li>
+  <li>Toute sollicitation d'un mineur à des fins sexuelles ;</li>
+  <li>Tout contenu facilitant la mise en contact d'adultes avec des mineurs
+  à des fins d'exploitation.</li>
+</ul>
+<p>La violation de cette règle entraîne la suspension immédiate du compte
+et, le cas échéant, le signalement aux autorités compétentes.</p>
+
+<h2>4. Signalement</h2>
+<p>Si vous êtes témoin d'un contenu ou d'un comportement contraire aux
+normes ci-dessus, vous pouvez le signaler :</p>
+<ul>
+  <li><strong>Depuis l'application</strong> : fonctionnalité « Signaler »
+  disponible sur chaque profil du cercle.</li>
+  <li><strong>Par email</strong> :
+  <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a> — précisez l'objet
+  « Signalement protection mineurs ».</li>
+</ul>
+<p>Tout signalement est traité dans les <strong>72 heures</strong> ouvrées.
+Les signalements impliquant un mineur sont traités en priorité.</p>
+
+<h2>5. Traitement des signalements</h2>
+<p>À réception d'un signalement :</p>
+<ol>
+  <li>Le compte signalé est examiné et peut être suspendu à titre
+  conservatoire dans l'attente de la vérification.</li>
+  <li>Si le signalement est avéré, le compte est définitivement supprimé et
+  le contenu effacé.</li>
+  <li>Tout contenu relevant d'une infraction pénale (notamment CSAM) est
+  signalé au <strong>Cyberespace de signalement</strong>
+  (<a href="https://www.internet-signalement.gouv.fr">internet-signalement.gouv.fr</a>)
+  et, le cas échéant, à Interpol via le portail ICSE.</li>
+</ol>
+
+<h2>6. Contact dédié</h2>
+<p>Pour toute question relative à la protection des mineurs ou pour soumettre
+un signalement, contactez :
+<a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>
+`));
+});
+
 legalRouter.get('/suppression-compte', (_req, res) => {
   res.type('html').send(page('Suppression de compte', `
 <h1>Suppression de compte — Aparté</h1>

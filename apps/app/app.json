@@ -3,7 +3,7 @@
     "name": "Aparté",
     "slug": "aparte",
     "scheme": "aparte",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "icon": "./assets/icon.png",
