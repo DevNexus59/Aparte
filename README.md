@@ -120,3 +120,6 @@ Palette ambrée sur fond sombre — typographie variable, animations fluides, z�
 ## Auteur
 
 **Pierre Fourdin** — [pierrefourdin.dev](https://pierrefourdin.dev) · [GitHub @DevNexus59](https://github.com/DevNexus59)
+
+## Licence
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) — Pierre Fourdin, 2026
