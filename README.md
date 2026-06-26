@@ -1,50 +1,122 @@
-# Aparté — monorepo
+# Aparté
 
-> Sanctuaire relationnel minimaliste — 3 personnes proches, anti-dopamine, design system Aube.
+> Trois contacts. Pas plus.
 
-Monorepo géré avec **pnpm workspaces** (recommandation officielle Expo pour les monorepos React Native).
+Application mobile minimaliste anti-dopamine — pas de fil d'actualité, pas de likes, pas d'algorithme de recommandation. Juste les trois personnes qui comptent vraiment.
 
-## Structure
+Projet personnel développé en solo avec l'assistance de **Claude Code**.
+
+---
+
+## Concept
+
+La plupart des apps sociales sont optimisées pour maximiser le temps passé. Aparté fait l'inverse : une contrainte dure de 3 contacts, un design épuré, zéro mécanique de rétention.
+
+- **3 contacts maximum** — choisis intentionnellement
+- **Pas de score, pas de streak, pas de notification compulsive**
+- **Push hebdomadaire** — un seul prompt le lundi pour prendre des nouvelles
+- **Design orb animé** — respiration visuelle, pas de barre de navigation classique
+
+---
+
+## Stack
+
+| Couche | Technologie |
+|--------|-------------|
+| Mobile | React Native · Expo SDK 54 · React 19.1 · RN 0.81 |
+| Animations | Reanimated v4 · react-native-worklets |
+| Backend | NestJS · TypeORM · MySQL |
+| Auth | JWT · Argon2 |
+| Push | Expo Push API · cron lundi 9h–11h UTC |
+| Monorepo | pnpm workspaces (node-linker=hoisted) |
+| Fonts | Newsreader · Hanken Grotesk · Geist Mono |
+
+---
+
+## Architecture monorepo
 
 ```
-cercle/
+aparte/
 ├── apps/
-│   ├── api/          Backend Express + TypeORM (MySQL) + POO en couches
-│   └── app/          Front React Native + Expo Router + NativeWind
-└── docs/             Spec produit, archi, audits sécurité
+│   ├── mobile/          # Expo app (React Native)
+│   └── api/             # NestJS backend
+├── packages/
+│   └── shared/          # Types & utils partagés
+├── pnpm-workspace.yaml
+└── package.json
 ```
 
-## Démarrage
+---
+
+## Fonctionnalités
+
+- **Auth** — inscription / connexion JWT, hash Argon2, refresh token
+- **Aparté** — sélection et gestion des 3 contacts
+- **Constellation** — layout SVG animé des contacts
+- **Orb** — composant de respiration visuelle (Reanimated v4)
+- **Push notifications** — cron hebdomadaire via Expo Push API
+- **Upload avatar** — validation magic bytes (JPEG / PNG / WebP)
+- **TabBar SVG** — navigation custom sans librairie tierce
+
+---
+
+## Installation
+
+### Prérequis
+
+- Node 20+
+- pnpm 9+
+- MySQL 8+
+- Expo Go (Android) ou build dev
+
+### Setup
 
 ```bash
-# Installer pnpm si ce n'est pas fait
-npm install -g pnpm
-
-# Installer toutes les deps du monorepo
+git clone https://github.com/DevNexus59/aparte.git
+cd aparte
 pnpm install
-
-# Backend
-pnpm api:dev          # http://localhost:4000
-pnpm api:test
-
-# Front (Expo SDK 54)
-pnpm app:start        # puis i / a / w
 ```
 
-## Pourquoi pnpm
+### Variables d'environnement
 
-Les monorepos npm workspaces marchent mal avec Expo/RN à cause de la résolution des dépendances transitives. pnpm avec `node-linker=hoisted` (cf `.npmrc`) installe tout en un seul `node_modules/` (comme npm) mais avec un système de résolution plus prévisible. Aucune différence visible côté code.
+```bash
+# apps/api/.env
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=aparte
+DB_USER=aparte
+DB_PASS=...
+JWT_SECRET=...
+JWT_REFRESH_SECRET=...
+```
 
-## CI
+### Lancer
 
-Chaque push et chaque PR déclenche `.github/workflows/ci.yml` :
-- `api` : build + tests Vitest
-- `app` : typecheck + tests Vitest
+```bash
+# API
+pnpm api:dev
 
-## Pour la présentation (DP)
+# App mobile
+pnpm app:start
+```
 
-Ordre de lecture des docs :
-1. `docs/01-spec-mvp.md` — vision & spec produit
-2. `docs/02-architecture-bdd.md` — archi technique + schéma ER
-3. `apps/api/README.md` + `apps/app/README.md` — détails techniques
-4. `docs/03-audit-initial.md` + `docs/04-audit-v2.md` — sécurité, traçable
+---
+
+## Design
+
+Palette ambrée sur fond sombre — typographie variable, animations fluides, zéro élément superflu.
+
+- **Couleurs** — amber/dark, pas de couleur primaire criarde
+- **Philosophie** — chaque pixel justifié, rien par défaut
+
+---
+
+## Statut
+
+> En développement actif — bêta testeurs recherchés (Android).
+
+---
+
+## Auteur
+
+**Pierre Fourdin** — [pierrefourdin.dev](https://pierrefourdin.dev) · [GitHub @DevNexus59](https://github.com/DevNexus59)
