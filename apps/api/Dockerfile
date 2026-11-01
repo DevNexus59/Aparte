@@ -2,7 +2,7 @@
 # Contexte de build attendu : la racine du monorepo.
 #   docker build -f apps/api/Dockerfile -t aparte-api:latest .
 
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 ENV COREPACK_HOME=/opt/corepack \
     COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
